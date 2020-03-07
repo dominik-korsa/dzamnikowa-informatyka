@@ -15,12 +15,12 @@
   import NavigationDrawer from '@/components/NavigationDrawer.vue';
 
   export default {
-    data: () => ({
-      showNavigationDrawer: false,
-    }),
     components: {
       AppBar,
       NavigationDrawer,
     },
+    data: () => ({
+      showNavigationDrawer: false,
+    }),
   };
 </script>
