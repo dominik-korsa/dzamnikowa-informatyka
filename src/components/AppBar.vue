@@ -2,8 +2,13 @@
   <v-app-bar
     app
     color="primary white--text"
+    clipped-left
   >
-    <v-app-bar-nav-icon color="white" />
+    <v-app-bar-nav-icon
+      v-if="$vuetify.breakpoint.smAndDown"
+      color="white"
+      @click="$emit('click:nav-icon')"
+    />
 
     <v-toolbar-title>Dżamnikowa Informatyka</v-toolbar-title>
 
