@@ -13,13 +13,28 @@
             cols="auto"
           >
             <v-card
-              class="pa-6"
+              :class="{
+                'pa-6': $vuetify.breakpoint.smAndUp,
+              }"
               raised
             >
-              <v-card-title class="display-1 justify-center text-center">
-                Dżamnikowa Informatyka
+              <v-card-title
+                class="justify-center text-center"
+                :class="{
+                  'display-1': $vuetify.breakpoint.smAndUp,
+                  'headline': $vuetify.breakpoint.xsOnly,
+                }"
+              >
+                Dżamnikowa<br>
+                Informatyka
               </v-card-title>
-              <v-card-title class="headline justify-center text-center mb-6">
+              <v-card-title
+                class="headline justify-center text-center mb-6"
+                :class="{
+                  'headline': $vuetify.breakpoint.smAndUp,
+                  'body-1': $vuetify.breakpoint.xsOnly,
+                }"
+              >
                 Nie jesteś zalogowany
               </v-card-title>
               <v-card-actions>
@@ -27,22 +42,24 @@
                   <v-btn
                     block
                     color="secondary"
-                    large
+                    :large="$vuetify.breakpoint.smAndUp"
                     :loading="googlePopupOpenCount > 0"
                     @click="showSignInWithGoogle()"
                   >
-                    Zaloguj się przez Google
+                    <span v-if="$vuetify.breakpoint.smAndUp">Zaloguj się przez Google</span>
+                    <span v-else>Logowanie Google</span>
                   </v-btn>
                   <v-btn
                     class="mt-2"
                     block
                     color="secondary"
                     outlined
-                    large
+                    :large="$vuetify.breakpoint.smAndUp"
                     :loading="facebookPopupOpenCount > 0"
                     @click="showSignInWithFacebook()"
                   >
-                    Zaloguj się przez Facebook
+                    <span v-if="$vuetify.breakpoint.smAndUp">Zaloguj się przez Facebook</span>
+                    <span v-else>Logowanie Facebook</span>
                   </v-btn>
                 </div>
               </v-card-actions>
