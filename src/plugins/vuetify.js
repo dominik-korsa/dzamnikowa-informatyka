@@ -1,10 +1,16 @@
 import Vue from 'vue';
 import VuetifyToast from 'vuetify-toast-snackbar';
 import pl from 'vuetify/es5/locale/pl';
-import Vuetify from 'vuetify/lib';
+import Vuetify, { VSnackbar, VBtn, VIcon } from 'vuetify/lib';
 import colors from 'vuetify/lib/util/colors';
 
-Vue.use(Vuetify);
+Vue.use(Vuetify, {
+  components: {
+    VSnackbar,
+    VBtn,
+    VIcon,
+  },
+});
 
 Vue.use(VuetifyToast, {
   queueable: true,

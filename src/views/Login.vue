@@ -23,15 +23,28 @@
                 Nie jesteś zalogowany
               </v-card-title>
               <v-card-actions>
-                <v-btn
-                  block
-                  color="secondary"
-                  large
-                  :loading="openPopupsCount > 0"
-                  @click="showSignIn()"
-                >
-                  Zaloguj się przez Google
-                </v-btn>
+                <div class="d-flex flex-column grow">
+                  <v-btn
+                    block
+                    color="secondary"
+                    large
+                    :loading="googlePopupOpenCount > 0"
+                    @click="showSignInWithGoogle()"
+                  >
+                    Zaloguj się przez Google
+                  </v-btn>
+                  <v-btn
+                    class="mt-2"
+                    block
+                    color="secondary"
+                    outlined
+                    large
+                    :loading="facebookPopupOpenCount > 0"
+                    @click="showSignInWithFacebook()"
+                  >
+                    Zaloguj się przez Facebook
+                  </v-btn>
+                </div>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -45,21 +58,40 @@
 
   export default {
     data: () => ({
-      openPopupsCount: 0,
+      googlePopupOpenCount: 0,
+      facebookPopupOpenCount: 0,
     }),
     methods: {
-      async showSignIn () {
-        if (this.openPopupsCount === 0) {
-          this.openPopupsCount += 1;
+      async showSignInWithGoogle () {
+        if (this.googlePopupOpenCount === 0) {
+          this.googlePopupOpenCount += 1;
           try {
-            await this.$auth.signIn();
+            await this.$auth.signInWithGoogle();
           } catch (error) {
-            console.error('Sign in failed');
+            this.showError(error);
             console.error(error);
           }
 
-          this.openPopupsCount -= 1;
+          this.googlePopupOpenCount -= 1;
         }
+      },
+      async showSignInWithFacebook () {
+        if (this.facebookPopupOpenCount === 0) {
+          this.facebookPopupOpenCount += 1;
+          try {
+            await this.$auth.signInWithFacebook();
+          } catch (error) {
+            this.showError(error);
+            console.error(error);
+          }
+
+          this.facebookPopupOpenCount -= 1;
+        }
+      },
+      showError (error) {
+        if (error.code === 'auth/popup-closed-by-user') this.$toast.error('Logowanie zostało przerwane przez użytkownika');
+        else if (error.code === 'auth/account-exists-with-different-credential') this.$toast.error('Istnieje już konto z tym samym adresem email, ale innym dostawcą');
+        else this.$toast.error('Nie udało się zalogować');
       },
     },
   };

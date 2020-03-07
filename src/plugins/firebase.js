@@ -19,9 +19,11 @@ export default {
     const firebase = Firebase.initializeApp(config);
     const database = firebase.firestore();
     const auth = firebase.auth();
-    const provider = new Firebase.auth.GoogleAuthProvider();
+    const googleProvider = new Firebase.auth.GoogleAuthProvider();
+    const facebookProvider = new Firebase.auth.FacebookAuthProvider();
     Vue.prototype.$auth = {
-      signIn: () => auth.signInWithPopup(provider),
+      signInWithGoogle: () => auth.signInWithPopup(googleProvider),
+      signInWithFacebook: () => auth.signInWithPopup(facebookProvider),
       signOut: () => auth.signOut(),
     };
     auth.onAuthStateChanged(async (user) => {
