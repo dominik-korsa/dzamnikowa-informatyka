@@ -6,11 +6,24 @@ module.exports = {
   extends: [
     'plugin:vue/essential',
     '@vue/airbnb',
+    'vuetify',
+  ],
+  plugins: [
+    'vuetify',
   ],
   parserOptions: {
     parser: 'babel-eslint',
   },
   rules: {
+    semi: ['error', 'always'],
+    'import/order': ['error', {
+      groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+      alphabetize: { order: 'asc' },
+    }],
+    'import/prefer-default-export': 'off',
+    'vuetify/no-deprecated-classes': 'error',
+    'vuetify/grid-unknown-attributes': 'error',
+    'vuetify/no-legacy-grid': 'error',
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
   },
