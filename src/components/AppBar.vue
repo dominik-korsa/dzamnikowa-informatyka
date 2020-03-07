@@ -19,6 +19,7 @@
             >
               <v-avatar
                 class="elevation-4"
+                :size="$vuetify.breakpoint.xsOnly ? 40 : 48"
               >
                 <v-img :src="$store.state.user.photoURL" />
               </v-avatar>
