@@ -68,6 +68,30 @@
             />
           </v-list-item-action>
         </v-list-item>
+        <v-list-item
+          v-if="!addedProviders.includes('google.com')"
+          @click="linkGoogle"
+        >
+          <v-list-item-icon>
+            <v-icon>mdi-google</v-icon>
+          </v-list-item-icon>
+
+          <v-list-item-title>
+            Połącz konto Google
+          </v-list-item-title>
+        </v-list-item>
+        <v-list-item
+          v-if="!addedProviders.includes('facebook.com')"
+          @click="linkFacebook"
+        >
+          <v-list-item-icon>
+            <v-icon>mdi-facebook</v-icon>
+          </v-list-item-icon>
+
+          <v-list-item-title>
+            Połącz konto Facebook
+          </v-list-item-title>
+        </v-list-item>
         <v-list-item @click="signOut">
           <v-list-item-icon>
             <v-icon>mdi-logout-variant</v-icon>
@@ -91,6 +115,10 @@
       changeDisplayNameDialogVisible: false,
     }),
     computed: {
+      addedProviders () {
+        if (!this.$store.state.user) return [];
+        return this.$store.state.user.providerData.map((provider) => provider.providerId);
+      },
       teacherModeEnabled: {
         get () {
           if (this.$store.state.userData && this.$store.state.userData.teacherModeEnabled) {
@@ -108,6 +136,22 @@
       },
     },
     methods: {
+      async linkGoogle () {
+        try {
+          await this.$auth.linkGoogle();
+        } catch (error) {
+          this.$toast.error('Nie udało się połączyć konta');
+          console.error(error);
+        }
+      },
+      async linkFacebook () {
+        try {
+          await this.$auth.linkFacebook();
+        } catch (error) {
+          this.$toast.error('Nie udało się połączyć konta');
+          console.error(error);
+        }
+      },
       signOut () {
         this.$auth.signOut();
       },

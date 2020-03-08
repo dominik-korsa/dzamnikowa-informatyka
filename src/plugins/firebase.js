@@ -24,6 +24,14 @@ export default {
     Vue.prototype.$auth = {
       signInWithGoogle: () => auth.signInWithPopup(googleProvider),
       signInWithFacebook: () => auth.signInWithPopup(facebookProvider),
+      linkGoogle: async () => {
+        await auth.currentUser.linkWithPopup(googleProvider);
+        store.dispatch('updateUser', { user: auth.currentUser });
+      },
+      linkFacebook: async () => {
+        await auth.currentUser.linkWithPopup(facebookProvider);
+        store.dispatch('updateUser', { user: auth.currentUser });
+      },
       signOut: () => auth.signOut(),
     };
     auth.onAuthStateChanged(async (user) => {

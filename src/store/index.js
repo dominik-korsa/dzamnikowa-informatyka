@@ -19,6 +19,7 @@ const store = new Vuex.Store({
         photoURL: user.photoURL,
         displayName: user.displayName,
         email: user.email,
+        providerData: user.providerData,
       } : null);
     },
     updateUserLoaded (state, value) {
