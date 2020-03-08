@@ -14,7 +14,7 @@
 
     <v-spacer />
 
-    <v-menu>
+    <v-menu :close-on-content-click="false">
       <template v-slot:activator="{ on: menu }">
         <v-tooltip bottom>
           <template v-slot:activator="{ on: tooltip }">
@@ -48,6 +48,26 @@
           </v-list-item-icon>
           <v-list-item-title>Zmień wyświetlaną nazwę</v-list-item-title>
         </v-list-item>
+        <v-list-item @click="teacherModeEnabled = !teacherModeEnabled">
+          <v-list-item-icon>
+            <v-icon>
+              mdi-teach
+            </v-icon>
+          </v-list-item-icon>
+
+          <v-list-item-content>
+            <v-list-item-title>
+              Tryb nauczyciela
+            </v-list-item-title>
+          </v-list-item-content>
+
+          <v-list-item-action>
+            <v-switch
+              v-model="teacherModeEnabled"
+              readonly
+            />
+          </v-list-item-action>
+        </v-list-item>
         <v-list-item @click="signOut">
           <v-list-item-icon>
             <v-icon>mdi-logout-variant</v-icon>
@@ -70,6 +90,23 @@
     data: () => ({
       changeDisplayNameDialogVisible: false,
     }),
+    computed: {
+      teacherModeEnabled: {
+        get () {
+          if (this.$store.state.userData && this.$store.state.userData.teacherModeEnabled) {
+            return this.$store.state.userData.teacherModeEnabled;
+          }
+          return false;
+        },
+        async set (value) {
+          if (!this.$store.state.user) return;
+          const userDataDocReference = this.$database.collection('user-data').doc(this.$store.state.user.uid);
+          await userDataDocReference.update({
+            teacherModeEnabled: value,
+          });
+        },
+      },
+    },
     methods: {
       signOut () {
         this.$auth.signOut();
