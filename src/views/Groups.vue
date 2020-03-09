@@ -1,5 +1,5 @@
 <template>
   <v-container>
-    <h1>This is an home page</h1>
+    <h1>This is an groups page</h1>
   </v-container>
 </template>
