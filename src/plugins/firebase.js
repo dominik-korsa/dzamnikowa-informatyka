@@ -32,6 +32,10 @@ export default {
         await auth.currentUser.linkWithPopup(facebookProvider);
         store.dispatch('updateUser', { user: auth.currentUser });
       },
+      unlinkFacebook: async () => {
+        await auth.currentUser.unlink(facebookProvider.providerId);
+        store.dispatch('updateUser', { user: auth.currentUser });
+      },
       signOut: () => auth.signOut(),
     };
     auth.onAuthStateChanged(async (user) => {

@@ -70,10 +70,18 @@
         </v-list-item>
         <v-list-item
           v-if="!addedProviders.includes('google.com')"
+          :disabled="googleLoading"
           @click="linkGoogle"
         >
           <v-list-item-icon>
-            <v-icon>mdi-google</v-icon>
+            <v-progress-circular
+              v-if="googleLoading"
+              indeterminate
+              :size="24"
+            />
+            <v-icon v-else>
+              mdi-google
+            </v-icon>
           </v-list-item-icon>
 
           <v-list-item-title>
@@ -82,14 +90,42 @@
         </v-list-item>
         <v-list-item
           v-if="!addedProviders.includes('facebook.com')"
+          :disabled="facebookLoading"
           @click="linkFacebook"
         >
           <v-list-item-icon>
-            <v-icon>mdi-facebook</v-icon>
+            <v-progress-circular
+              v-if="facebookLoading"
+              indeterminate
+              :size="24"
+            />
+            <v-icon v-else>
+              mdi-facebook
+            </v-icon>
           </v-list-item-icon>
 
           <v-list-item-title>
             Połącz konto Facebook
+          </v-list-item-title>
+        </v-list-item>
+        <v-list-item
+          v-if="addedProviders.includes('facebook.com')"
+          :disabled="addedProviders.length === 1 || facebookLoading"
+          @click="unlinkFacebook"
+        >
+          <v-list-item-icon>
+            <v-progress-circular
+              v-if="facebookLoading"
+              indeterminate
+              :size="24"
+            />
+            <v-icon v-else>
+              mdi-facebook
+            </v-icon>
+          </v-list-item-icon>
+
+          <v-list-item-title>
+            Odłącz konto Facebook
           </v-list-item-title>
         </v-list-item>
         <v-list-item @click="signOut">
@@ -113,6 +149,8 @@
     },
     data: () => ({
       changeDisplayNameDialogVisible: false,
+      googleLoading: false,
+      facebookLoading: false,
     }),
     computed: {
       addedProviders () {
@@ -137,20 +175,40 @@
     },
     methods: {
       async linkGoogle () {
+        this.googleLoading = true;
+
         try {
           await this.$auth.linkGoogle();
         } catch (error) {
           this.$toast.error('Nie udało się połączyć konta');
           console.error(error);
         }
+
+        this.googleLoading = false;
       },
       async linkFacebook () {
+        this.facebookLoading = true;
+
         try {
           await this.$auth.linkFacebook();
         } catch (error) {
           this.$toast.error('Nie udało się połączyć konta');
           console.error(error);
         }
+
+        this.facebookLoading = false;
+      },
+      async unlinkFacebook () {
+        this.facebookLoading = true;
+
+        try {
+          await this.$auth.unlinkFacebook();
+        } catch (error) {
+          this.$toast.error('Nie udało się odłączyć konta');
+          console.error(error);
+        }
+
+        this.facebookLoading = false;
       },
       signOut () {
         this.$auth.signOut();
