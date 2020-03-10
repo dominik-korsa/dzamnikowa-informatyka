@@ -8,6 +8,8 @@ const stateObject = {
   user: null,
   userLoaded: false,
   userData: null,
+  teachedGroups: null,
+  userDataCollection: null,
 };
 
 const store = new Vuex.Store({
@@ -37,6 +39,20 @@ const store = new Vuex.Store({
     ),
     unbindUserData: firestoreAction(
       (context) => context.unbindFirestoreRef('userData'),
+    ),
+    bindTeachedGroups: firestoreAction(
+      (context, { database, userUid }) => context.bindFirestoreRef(
+        'teachedGroups',
+        database
+          .collection('groups')
+          .where('teachers', 'array-contains', userUid),
+      ),
+    ),
+    unbindTeachedGroups: firestoreAction(
+      (context) => context.unbindFirestoreRef('teachedGroups'),
+    ),
+    bindUserDataCollection: firestoreAction(
+      (context, { database }) => context.bindFirestoreRef('userDataCollection', database.collection('user-data')),
     ),
   },
   modules: {

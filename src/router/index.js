@@ -7,13 +7,15 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: '/',
-    name: 'Home',
     component: Home,
   },
   {
-    path: '/grupy',
-    name: 'Groups',
-    component: () => import(/* webpackChunkName: "groups" */ '../views/Groups.vue'),
+    path: '/zarzadzanie-grupami',
+    component: () => import(/* webpackChunkName: "groups" */ '../views/GroupManager.vue'),
+  },
+  {
+    path: '/zarzadzanie-grupami/:groupId',
+    component: () => import(/* webpackChunkName: "groups" */ '../views/GroupManager.vue'),
   },
 ];
 
