@@ -118,8 +118,8 @@
 </template>
 
 <script>
-  import GroupCreateDialog from '@/components/GroupCreateDialog.vue';
-  import GroupEditor from '@/components/GroupEditor.vue';
+  import GroupCreateDialog from '@/components/group-manager/GroupCreateDialog.vue';
+  import GroupEditor from '@/components/group-manager/GroupEditor.vue';
 
   export default {
     components: {

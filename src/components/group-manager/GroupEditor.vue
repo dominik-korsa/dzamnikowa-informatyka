@@ -218,10 +218,10 @@
 </template>
 
 <script>
-  import JoinCodeEditorDialog from '@/components/JoinCodeEditorDialog.vue';
-  import JoinCodeGenerateDialog from '@/components/JoinCodeGenerateDialog.vue';
-  import JoinCodeRemoveDialog from '@/components/JoinCodeRemoveDialog.vue';
-  import JoinCodeUseListDialog from '@/components/JoinCodeUseListDialog.vue';
+  import JoinCodeEditorDialog from '@/components/group-manager/JoinCodeEditorDialog.vue';
+  import JoinCodeGenerateDialog from '@/components/group-manager/JoinCodeGenerateDialog.vue';
+  import JoinCodeRemoveDialog from '@/components/group-manager/JoinCodeRemoveDialog.vue';
+  import JoinCodeUseListDialog from '@/components/group-manager/JoinCodeUseListDialog.vue';
 
   export default {
     components: {
