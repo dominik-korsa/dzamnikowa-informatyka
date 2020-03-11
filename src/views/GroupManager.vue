@@ -21,69 +21,16 @@
       </div>
       <v-divider />
       <v-row
+        v-if="$vuetify.breakpoint.smAndUp"
         class="grow"
         no-gutters
       >
         <v-col
-          v-if="!$store.state.teachedGroups"
-          :cols="4"
+          :cols="5"
+          :md="4"
           :xl="2"
         >
-          <v-row
-            align="center"
-            justify="center"
-            class="fill-height"
-          >
-            <v-col cols="auto">
-              <v-progress-circular
-                indeterminate
-                color="primary"
-                :size="64"
-              />
-            </v-col>
-          </v-row>
-        </v-col>
-        <v-col
-          v-else-if="$store.state.teachedGroups.length === 0"
-          :cols="4"
-          :xl="2"
-          class="pa-4"
-        >
-          <v-row
-            align="center"
-            justify="center"
-            class="fill-height"
-          >
-            <v-col cols="auto">
-              <h1 class="text-center display-1">
-                Nie jesteś nauczycielem w żadnej grupie
-              </h1>
-              <v-btn
-                outlined
-                color="secondary"
-                class="mt-8"
-                block
-                @click="createNewGroup"
-              >
-                Stwórz nową grupę
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-col>
-        <v-col
-          v-else
-          :cols="4"
-          :xl="2"
-        >
-          <v-list>
-            <v-list-item
-              v-for="group in $store.state.teachedGroups"
-              :key="group.id"
-              :to="`/zarzadzanie-grupami/${group.id}`"
-            >
-              <v-list-item-title v-text="group.name" />
-            </v-list-item>
-          </v-list>
+          <groups-list @click:create-new-group="createNewGroup" />
         </v-col>
         <v-divider
           vertical
@@ -112,6 +59,26 @@
           <group-editor :group-id="$route.params.groupId" />
         </v-col>
       </v-row>
+      <template v-else>
+        <groups-list @click:create-new-group="createNewGroup" />
+        <v-divider />
+        <v-row
+          v-if="!$route.params.groupId"
+          align="center"
+          justify="center"
+          class="fill-height"
+        >
+          <v-col cols="auto">
+            <h1 class="text-center display-1">
+              Wybierz grupę do edycji
+            </h1>
+          </v-col>
+        </v-row>
+        <group-editor
+          v-else
+          :group-id="$route.params.groupId"
+        />
+      </template>
     </v-card>
     <group-create-dialog ref="groupCreateDialog" />
   </v-container>
@@ -120,11 +87,13 @@
 <script>
   import GroupCreateDialog from '@/components/group-manager/GroupCreateDialog.vue';
   import GroupEditor from '@/components/group-manager/GroupEditor.vue';
+  import GroupsList from '@/components/group-manager/GroupsList.vue';
 
   export default {
     components: {
       GroupCreateDialog,
       GroupEditor,
+      GroupsList,
     },
     methods: {
       createNewGroup () {
