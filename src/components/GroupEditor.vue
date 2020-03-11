@@ -106,7 +106,11 @@
         @click="editCode(code.id)"
       >
         <v-list-item-content>
-          <v-list-item-title>
+          <v-list-item-title
+            :class="{
+              'text--disabled': code.maxUses !== null && code.maxUses <= code.usedAmount
+            }"
+          >
             <span v-text="code.codeString[0]" />
             <span
               class="ml-1"
@@ -114,7 +118,11 @@
             />
           </v-list-item-title>
 
-          <v-list-item-subtitle>
+          <v-list-item-subtitle
+            :class="{
+              'text--disabled': code.maxUses !== null && code.maxUses <= code.usedAmount
+            }"
+          >
             Użycia:
             <span v-text="code.usedAmount" /> /
             <v-icon

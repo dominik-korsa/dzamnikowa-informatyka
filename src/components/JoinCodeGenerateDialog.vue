@@ -102,6 +102,7 @@
     },
     methods: {
       show (groupId) {
+        this.newCode = null;
         this.groupId = groupId;
         this.showDialog = true;
       },

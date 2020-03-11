@@ -94,9 +94,6 @@
 </template>
 
 <script>
-  // import firebase from 'firebase/app';
-  // import 'firebase/firebase-functions';
-
   export default {
     data: () => ({
       showDialog: false,
