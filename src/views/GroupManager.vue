@@ -113,35 +113,22 @@
         </v-col>
       </v-row>
     </v-card>
+    <group-create-dialog ref="groupCreateDialog" />
   </v-container>
 </template>
 
 <script>
+  import GroupCreateDialog from '@/components/GroupCreateDialog.vue';
   import GroupEditor from '@/components/GroupEditor.vue';
 
   export default {
     components: {
+      GroupCreateDialog,
       GroupEditor,
     },
     methods: {
-      async createNewGroup () {
-        if (!this.$store.state.user) {
-          this.$toast.error('Błąd podczas pobierania danych o użytkowniku');
-          return;
-        }
-
-        try {
-          await this.$database.collection('groups').add({
-            name: 'Nowa grupa',
-            students: [],
-            teachers: [
-              this.$store.state.user.uid,
-            ],
-          });
-        } catch (error) {
-          this.$toast.error('Podczas tworzenia grupy wystąpił nieoczekiwany błąd');
-          console.error(error);
-        }
+      createNewGroup () {
+        this.$refs.groupCreateDialog.show();
       },
     },
   };
