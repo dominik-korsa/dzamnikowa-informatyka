@@ -181,6 +181,18 @@
                   Edytuj
                 </v-list-item-title>
               </v-list-item>
+              <v-list-item
+                :disabled="code.usedAmount === 0"
+                @click="showCodeUses(code.id)"
+              >
+                <v-list-item-icon>
+                  <v-icon>mdi-account-multiple</v-icon>
+                </v-list-item-icon>
+
+                <v-list-item-title>
+                  Lista użyć
+                </v-list-item-title>
+              </v-list-item>
               <v-list-item @click="removeCode(code.id)">
                 <v-list-item-icon>
                   <v-icon>mdi-delete</v-icon>
@@ -201,6 +213,7 @@
       ref="joinCodeRemoveDialog"
       @remove="removeCodeConfirm"
     />
+    <join-code-use-list-dialog ref="joinCodeUseListDialog" />
   </div>
 </template>
 
@@ -208,12 +221,14 @@
   import JoinCodeEditorDialog from '@/components/JoinCodeEditorDialog.vue';
   import JoinCodeGenerateDialog from '@/components/JoinCodeGenerateDialog.vue';
   import JoinCodeRemoveDialog from '@/components/JoinCodeRemoveDialog.vue';
+  import JoinCodeUseListDialog from '@/components/JoinCodeUseListDialog.vue';
 
   export default {
     components: {
       JoinCodeGenerateDialog,
       JoinCodeEditorDialog,
       JoinCodeRemoveDialog,
+      JoinCodeUseListDialog,
     },
     props: {
       groupId: {
@@ -312,6 +327,9 @@
       },
       editCode (codeId) {
         this.$refs.joinCodeEditorDialog.show(codeId);
+      },
+      showCodeUses (codeId) {
+        this.$refs.joinCodeUseListDialog.show(codeId);
       },
       async removeCode (codeId) {
         this.$refs.joinCodeRemoveDialog.show(codeId);
