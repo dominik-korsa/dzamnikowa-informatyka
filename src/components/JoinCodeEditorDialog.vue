@@ -72,6 +72,13 @@
         <v-card-actions>
           <v-spacer />
           <v-btn
+            color="red"
+            text
+            @click="remove"
+          >
+            Usuń
+          </v-btn>
+          <v-btn
             color="secondary"
             outlined
             type="submit"
@@ -167,10 +174,21 @@
             role: this.role,
           });
         } catch (error) {
-          this.$toast.show('Podczas edytowania kodu wystąpił nieoczekiwany błąd');
+          this.$toast.error('Podczas edytowania kodu wystąpił nieoczekiwany błąd');
           console.error(error);
         }
         this.editLoading = false;
+      },
+      async remove () {
+        this.loading = true;
+        try {
+          await this.$database.collection('group-join-codes').doc(this.codeId).delete();
+          this.showDialog = false;
+        } catch (error) {
+          this.$toast.error('Podczas usuwania kodu wystąpił nieoczekiwany błąd');
+          console.error(error);
+          this.loading = false;
+        }
       },
     },
   };

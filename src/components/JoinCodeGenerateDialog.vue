@@ -9,6 +9,21 @@
         @submit.prevent="submit"
       >
         <v-card-text>
+          <v-card
+            v-if="newCode"
+            class="pa-3 text-center body-1 mb-4"
+            outlined
+          >
+            Nowy kod to:
+            <span
+              class="ml-1 font-weight-bold"
+              v-text="newCodeString[0]"
+            />
+            <span
+              class="ml-1 font-weight-bold"
+              v-text="newCodeString[1]"
+            />
+          </v-card>
           <v-select
             v-model="role"
             :items="roleItems"
@@ -36,21 +51,6 @@
               />
             </v-col>
           </v-row>
-          <v-card
-            v-if="newCode"
-            class="pa-3 text-center body-1"
-            outlined
-          >
-            Nowy kod to:
-            <span
-              class="ml-1 font-weight-bold"
-              v-text="newCodeString[0]"
-            />
-            <span
-              class="ml-1 font-weight-bold"
-              v-text="newCodeString[1]"
-            />
-          </v-card>
         </v-card-text>
         <v-card-actions>
           <v-spacer />
