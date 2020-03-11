@@ -103,7 +103,6 @@
       <v-list-item
         v-for="code in joinCodeItems"
         :key="code.id"
-        @click="editCode(code.id)"
       >
         <v-list-item-content>
           <v-list-item-title
@@ -150,21 +149,59 @@
         >
           Uczeń
         </v-chip>
+        <v-list-item-action>
+          <v-menu offset-y>
+            <template v-slot:activator="{ on }">
+              <v-btn
+                icon
+                v-on="on"
+              >
+                <v-icon>mdi-dots-vertical</v-icon>
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item @click="editCode(code.id)">
+                <v-list-item-icon>
+                  <v-icon>mdi-pencil</v-icon>
+                </v-list-item-icon>
+
+                <v-list-item-title>
+                  Edytuj
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="removeCode(code.id)">
+                <v-list-item-icon>
+                  <v-icon>mdi-delete</v-icon>
+                </v-list-item-icon>
+
+                <v-list-item-title>
+                  Usuń
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </v-list-item-action>
       </v-list-item>
     </v-list>
     <join-code-generate-dialog ref="joinCodeGenerateDialog" />
     <join-code-editor-dialog ref="joinCodeEditorDialog" />
+    <join-code-remove-dialog
+      ref="joinCodeRemoveDialog"
+      @remove="removeCodeConfirm"
+    />
   </div>
 </template>
 
 <script>
   import JoinCodeEditorDialog from '@/components/JoinCodeEditorDialog.vue';
   import JoinCodeGenerateDialog from '@/components/JoinCodeGenerateDialog.vue';
+  import JoinCodeRemoveDialog from '@/components/JoinCodeRemoveDialog.vue';
 
   export default {
     components: {
       JoinCodeGenerateDialog,
       JoinCodeEditorDialog,
+      JoinCodeRemoveDialog,
     },
     props: {
       groupId: {
@@ -260,6 +297,17 @@
       },
       editCode (codeId) {
         this.$refs.joinCodeEditorDialog.show(codeId);
+      },
+      async removeCode (codeId) {
+        this.$refs.joinCodeRemoveDialog.show(codeId);
+      },
+      async removeCodeConfirm (codeId) {
+        try {
+          await this.$database.collection('group-join-codes').doc(codeId).delete();
+        } catch (error) {
+          this.$toast.error('Podczas usuwania kodu wystąpił nieoczekiwany błąd');
+          console.error(error);
+        }
       },
     },
   };
