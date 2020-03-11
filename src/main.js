@@ -15,5 +15,10 @@ new Vue({
   router,
   vuetify,
   store,
+  created () {
+    store.dispatch('bindUserDataCollection', {
+      database: this.$database,
+    });
+  },
   render: (h) => h(App),
 }).$mount('#app');

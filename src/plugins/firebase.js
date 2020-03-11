@@ -45,14 +45,24 @@ export default {
         if (!(await userDataDocReference.get()).exists) {
           userDataDocReference.set({
             displayName: user.displayName,
+            photoURL: user.photoURL,
+          });
+        } else {
+          userDataDocReference.update({
+            photoURL: user.photoURL,
           });
         }
         store.dispatch('bindUserData', {
           database,
           userUid: user.uid,
         });
+        store.dispatch('bindTeachedGroups', {
+          database,
+          userUid: user.uid,
+        });
       } else {
         store.dispatch('unbindUserData');
+        store.dispatch('unbindTeachedGroups');
       }
     });
     Vue.prototype.$database = database;

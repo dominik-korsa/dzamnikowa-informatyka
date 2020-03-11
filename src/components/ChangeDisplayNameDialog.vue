@@ -15,7 +15,7 @@
             label="Imię i nazwisko"
             outlined
             persistent-hint
-            hint="Twoje dane są widoczne tylko dla administratorów"
+            hint="Twoja nazwa jest widoczna dla nauczycieli i innych użytkowników"
             color="secondary"
           />
         </v-card-text>

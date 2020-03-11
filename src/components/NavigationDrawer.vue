@@ -8,7 +8,7 @@
   >
     <v-list>
       <v-list-item
-        v-for="link in links"
+        v-for="link in visibleLinks"
         :key="link.to"
         :to="link.to"
       >
@@ -38,11 +38,29 @@
           to: '/',
         },
         {
+          title: 'Dołącz do grupy',
+          icon: 'mdi-account-multiple-plus',
+          to: '/dolacz-do-grupy',
+        },
+        {
           title: 'Zarządzanie grupami',
           icon: 'mdi-account-multiple',
-          to: '/grupy',
+          to: '/zarzadzanie-grupami',
+          teacherMode: true,
         },
       ],
     }),
+    computed: {
+      visibleLinks () {
+        let teacherModeEnabled = false;
+        if (this.$store.state.userData && this.$store.state.userData.teacherModeEnabled) teacherModeEnabled = true;
+        return this.links.filter((link) => {
+          if (link.teacherMode) {
+            return teacherModeEnabled;
+          }
+          return true;
+        });
+      },
+    },
   };
 </script>
