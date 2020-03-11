@@ -96,13 +96,14 @@
         <v-icon left>
           mdi-plus
         </v-icon>
-        Generuj nowy kod
+        {{ $vuetify.breakpoint.smAndDown ? 'Nowy' : 'Generuj nowy kod' }}
       </v-btn>
     </v-subheader>
     <v-list subheader>
       <v-list-item
         v-for="code in joinCodeItems"
         :key="code.id"
+        @click="editCode(code.id)"
       >
         <v-list-item-content>
           <v-list-item-title>
@@ -144,15 +145,18 @@
       </v-list-item>
     </v-list>
     <join-code-generate-dialog ref="joinCodeGenerateDialog" />
+    <join-code-editor-dialog ref="joinCodeEditorDialog" />
   </div>
 </template>
 
 <script>
+  import JoinCodeEditorDialog from '@/components/JoinCodeEditorDialog.vue';
   import JoinCodeGenerateDialog from '@/components/JoinCodeGenerateDialog.vue';
 
   export default {
     components: {
       JoinCodeGenerateDialog,
+      JoinCodeEditorDialog,
     },
     props: {
       groupId: {
@@ -245,6 +249,9 @@
       },
       showJoinCodeGeneratorDialog () {
         this.$refs.joinCodeGenerateDialog.show(this.groupId);
+      },
+      editCode (codeId) {
+        this.$refs.joinCodeEditorDialog.show(codeId);
       },
     },
   };

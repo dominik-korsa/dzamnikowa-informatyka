@@ -26,6 +26,7 @@
                 type="number"
                 :disabled="!maxUsesEnabled"
                 hide-details
+                min="1"
                 @change="maxUsesChange"
               />
             </v-col>
