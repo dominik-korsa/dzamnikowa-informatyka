@@ -4,7 +4,7 @@ import { random } from 'lodash';
 
 admin.initializeApp();
 
-const database =  admin.firestore();
+const database = admin.firestore();
 
 function generateRandomCode(): number {
   return random(10000000, 99999999, false);
@@ -31,7 +31,7 @@ export const generateNewJoinCode = functions.https.onCall(async (data, context) 
   }
 
   const collectionReference = database.collection('group-join-codes');
-  let code;
+  let code: number;
   do {
     code = generateRandomCode();
   } while ((await collectionReference.doc(code.toString(10)).get()).exists)
