@@ -1,6 +1,6 @@
 <template>
   <v-row
-    v-if="!group"
+    v-if="loading"
     align="center"
     justify="center"
     class="fill-height"
@@ -11,6 +11,18 @@
         color="primary"
         :size="64"
       />
+    </v-col>
+  </v-row>
+  <v-row
+    v-else-if="!group"
+    align="center"
+    justify="center"
+    class="fill-height pa-8"
+  >
+    <v-col cols="auto">
+      <h1 class="text-center display-1">
+        Wybrana grupa nie istnieje lub nie masz do niej dostępu
+      </h1>
     </v-col>
   </v-row>
   <div
@@ -214,6 +226,9 @@
       joinCodes: [],
     }),
     computed: {
+      loading () {
+        return this.$store.state.teachedGroups === null;
+      },
       joinCodeItems () {
         return this.joinCodes.map((item) => ({
           id: item.id,
