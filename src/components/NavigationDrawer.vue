@@ -38,6 +38,11 @@
           to: '/',
         },
         {
+          title: 'Dołącz do grupy',
+          icon: 'mdi-account-multiple-plus',
+          to: '/dolacz-do-grupy',
+        },
+        {
           title: 'Zarządzanie grupami',
           icon: 'mdi-account-multiple',
           to: '/zarzadzanie-grupami',
