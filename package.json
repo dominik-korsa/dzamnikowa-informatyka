@@ -9,11 +9,14 @@
     "lint:fix": "vue-cli-service lint --fix"
   },
   "dependencies": {
+    "@mdi/font": "^4.9.95",
     "core-js": "^3.6.4",
     "firebase": "^7.10.0",
+    "lodash": "^4.17.15",
     "vue": "^2.6.11",
     "vue-router": "^3.1.5",
     "vue-the-mask": "^0.11.1",
+    "vuedraggable": "^2.23.2",
     "vuefire": "^2.2.1",
     "vuetify": "^2.2.11",
     "vuetify-toast-snackbar": "^0.6.1",

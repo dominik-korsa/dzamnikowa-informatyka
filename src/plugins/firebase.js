@@ -60,9 +60,14 @@ export default {
           database,
           userUid: user.uid,
         });
+        store.dispatch('bindStudiedGroups', {
+          database,
+          userUid: user.uid,
+        });
       } else {
         store.dispatch('unbindUserData');
         store.dispatch('unbindTeachedGroups');
+        store.dispatch('unbindStudiedGroups');
       }
     });
     Vue.prototype.$database = database;

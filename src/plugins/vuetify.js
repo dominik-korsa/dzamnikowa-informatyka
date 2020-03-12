@@ -3,6 +3,7 @@ import VuetifyToast from 'vuetify-toast-snackbar';
 import pl from 'vuetify/es5/locale/pl';
 import Vuetify, { VSnackbar, VBtn, VIcon } from 'vuetify/lib';
 import colors from 'vuetify/lib/util/colors';
+import '@mdi/font/css/materialdesignicons.css';
 
 Vue.use(Vuetify, {
   components: {
@@ -33,5 +34,8 @@ export default new Vuetify({
   lang: {
     locales: { pl },
     current: 'pl',
+  },
+  icons: {
+    iconfont: 'mdi',
   },
 });
