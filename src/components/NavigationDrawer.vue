@@ -35,7 +35,7 @@
       >
         <v-list-item
           v-if="group.teacher && $store.state.userData && $store.state.userData.teacherModeEnabled"
-          :to="`/grupy/${group.id}/nowy-temat`"
+          @click="createNewTopic(group.id)"
         >
           <v-list-item-icon>
             <v-icon>mdi-plus</v-icon>
@@ -55,62 +55,64 @@
           <draggable
             v-if="group.teacher && $store.state.userData && $store.state.userData.teacherModeEnabled"
             v-model="group.topics"
-            :disabled="!moveEnabled(group.id)"
-            :description="`topics:${group.id}`"
+            :disabled="!groupMoveEnabled(group.id)"
+            :group="`topics:${group.id}`"
             :animation="200"
+            handle=".v-list-group__header"
             @input="updateGroupTopic(group.id, $event)"
-            @start="dragStart(group.id)"
-            @end="dragEnd(group.id)"
           >
-            <transition-group
-              type="transition"
-              :name="!isDragged(group.id) ? 'flip-list' : null"
+            <v-list-group
+              v-for="topic in group.topics"
+              :key="topic.id"
             >
-              <v-list-group
-                v-for="topic in group.topics"
-                :key="topic.id"
+              <template v-slot:activator>
+                <v-list-item-content>
+                  <v-list-item-title v-text="topic.name" />
+                </v-list-item-content>
+              </template>
+
+              <v-list-item
+                :to="`/grupy/${group.id}/tematy/${topic.id}/ustwienia`"
+                dense
               >
-                <template v-slot:activator>
-                  <v-list-item-content>
-                    <v-list-item-title v-text="topic.name" />
-                  </v-list-item-content>
-                </template>
+                <v-list-item-icon>
+                  <v-icon>mdi-settings</v-icon>
+                </v-list-item-icon>
 
-                <v-list-item
-                  :to="`/grupy/${group.id}/tematy/${topic.id}/ustwienia`"
-                  dense
-                >
-                  <v-list-item-icon>
-                    <v-icon>mdi-settings</v-icon>
-                  </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    Ustawienia tematu
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
 
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      Ustawienia tematu
-                    </v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
+              <v-list-item
+                :to="`/grupy/${group.id}/tematy/${topic.id}/nowy-zasob`"
+                dense
+              >
+                <v-list-item-icon>
+                  <v-icon>mdi-plus</v-icon>
+                </v-list-item-icon>
 
-                <v-list-item
-                  :to="`/grupy/${group.id}/tematy/${topic.id}/nowy-zasob`"
-                  dense
-                >
-                  <v-list-item-icon>
-                    <v-icon>mdi-plus</v-icon>
-                  </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    Nowy zasób
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
 
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      Nowy zasób
-                    </v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
+              <v-divider
+                v-if="topic.resources && topic.resources.length > 0"
+                inset
+              />
 
-                <v-divider
-                  v-if="topic.resources.length > 0"
-                  inset
-                />
-
+              <draggable
+                v-model="topic.resources"
+                :disabled="!resourceMoveEnabled(group.id)"
+                :group="`resources:${group.id}`"
+                :animation="200"
+                @input="updateResource(group.id, topic.id, $event)"
+              >
                 <v-list-item
                   v-for="resource in topic.resources"
                   :key="resource.id"
@@ -143,8 +145,8 @@
                     <v-list-item-title v-text="resource.name" />
                   </v-list-item-content>
                 </v-list-item>
-              </v-list-group>
-            </transition-group>
+              </draggable>
+            </v-list-group>
           </draggable>
           <template v-else>
             <v-list-group
@@ -194,15 +196,18 @@
         </template>
       </v-list>
     </template>
+    <topic-creator-dialog ref="topicCreatorDialog" />
   </v-navigation-drawer>
 </template>
 
 <script>
+  import TopicCreatorDialog from '@/components/TopicCreatorDialog.vue';
   import { indexOf, unionBy, defaults } from 'lodash';
   import draggable from 'vuedraggable';
 
   export default {
     components: {
+      TopicCreatorDialog,
       draggable,
     },
     props: {
@@ -231,7 +236,7 @@
         },
       ],
       updatingGroups: [],
-      draggingGroups: [],
+      updatingResources: [],
     }),
     computed: {
       visibleLinks () {
@@ -262,7 +267,21 @@
           }))
           .map((group) => defaults(group, {
             topics: [],
-            resources: [],
+          }))
+          .map((group) => ({
+            ...group,
+            topics: group.topics
+              .map((topic) => ({
+                ...topic,
+                id: topic.id,
+              }))
+              .map((topic) => defaults(topic, {
+                resources: [],
+              }))
+              .map((topic) => ({
+                ...topic,
+                resources: topic.resources.filter(this.isResourceValid),
+              })),
           }));
       },
     },
@@ -272,33 +291,18 @@
           if (group.topics.findIndex((topic) => typeof topic === 'string') !== -1) {
             return false;
           }
-
-          const invalidResults = group.topics.map((topic) => {
-            if (topic.resources && topic.resources.length > 0) {
-              if (topic.resources.findIndex((resource) => typeof resource === 'string') !== -1) {
-                return false;
-              }
-            }
-
-            return true;
-          }).filter((result) => !result);
-          if (invalidResults.length > 0) {
-            return false;
-          }
         }
+
         return true;
       },
-      moveEnabled (groupId) {
+      isResourceValid (resource) {
+        return typeof resource !== 'string';
+      },
+      groupMoveEnabled (groupId) {
         return !this.updatingGroups.includes(groupId);
       },
-      dragStart (groupId) {
-        this.draggingGroups.push(groupId);
-      },
-      dragEnd (groupId) {
-        this.draggingGroups.splice(indexOf(this.updatingGroups), 1);
-      },
-      isDragged (groupId) {
-        return this.draggingGroups.includes(groupId);
+      resourceMoveEnabled (groupId) {
+        return !this.updatingResources.includes(groupId);
       },
       async updateGroupTopic (groupId, newTopics) {
         this.updatingGroups.push(groupId);
@@ -309,16 +313,23 @@
 
         this.updatingGroups.splice(indexOf(this.updatingGroups), 1);
       },
+      async updateResource (groupId, topicId, newResources) {
+        this.updatingResources.push(groupId);
+
+        await this.$database
+          .collection('groups').doc(groupId)
+          .collection('topics').doc(topicId)
+          .update({
+            resources: newResources.map((resource) => this.$database
+              .collection('groups').doc(groupId)
+              .collection('resources').doc(resource.id)),
+          });
+
+        this.updatingResources.splice(indexOf(this.updatingResources), 1);
+      },
+      createNewTopic (groupId) {
+        this.$refs.topicCreatorDialog.show(groupId);
+      },
     },
   };
 </script>
-
-<style lang="scss" scoped>
-  .cursor-move {
-    cursor: move;
-  }
-
-  .flip-list-move {
-    transition: transform 0.5s;
-  }
-</style>
