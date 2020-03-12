@@ -72,8 +72,8 @@
               </template>
 
               <v-list-item
-                :to="`/grupy/${group.id}/tematy/${topic.id}/ustwienia`"
                 dense
+                @click="showTopicSettings(group.id, topic.id)"
               >
                 <v-list-item-icon>
                   <v-icon>mdi-settings</v-icon>
@@ -197,17 +197,20 @@
       </v-list>
     </template>
     <topic-creator-dialog ref="topicCreatorDialog" />
+    <topic-settings-dialog ref="topicSettingsDialog" />
   </v-navigation-drawer>
 </template>
 
 <script>
   import TopicCreatorDialog from '@/components/TopicCreatorDialog.vue';
+  import TopicSettingsDialog from '@/components/TopicSettingsDialog.vue';
   import { indexOf, unionBy, defaults } from 'lodash';
   import draggable from 'vuedraggable';
 
   export default {
     components: {
       TopicCreatorDialog,
+      TopicSettingsDialog,
       draggable,
     },
     props: {
@@ -329,6 +332,9 @@
       },
       createNewTopic (groupId) {
         this.$refs.topicCreatorDialog.show(groupId);
+      },
+      showTopicSettings (groupId, topicId) {
+        this.$refs.topicSettingsDialog.show(groupId, topicId);
       },
     },
   };
