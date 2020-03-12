@@ -35,6 +35,33 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
+          <v-tooltip
+            v-if="deleteDisabled"
+            bottom
+          >
+            <template v-slot:activator="{ on }">
+              <span v-on="on">
+                <v-btn
+                  color="red"
+                  text
+                  :loading="deleteLoading"
+                  disabled
+                >
+                  Usuń
+                </v-btn>
+              </span>
+            </template>
+            <span>Przenieś wszystkie zasoby do innego tematu aby usunąć</span>
+          </v-tooltip>
+          <v-btn
+            v-else
+            color="red"
+            text
+            :loading="deleteLoading"
+            @click="deleteTopic()"
+          >
+            Usuń
+          </v-btn>
           <v-btn
             color="secondary"
             outlined
@@ -51,6 +78,9 @@
 </template>
 
 <script>
+  import firebase from 'firebase/app';
+  import 'firebase/firestore';
+
   export default {
     data: () => ({
       showDialog: false,
@@ -59,12 +89,18 @@
       topicDoc: null,
       name: '',
       loading: true,
+      deleteLoading: false,
       editLoading: false,
     }),
     computed: {
       dataChanged () {
         if (!this.topicDoc) return false;
         return this.topicDoc.name !== this.name.trim();
+      },
+      deleteDisabled () {
+        if (!this.topicDoc) return true;
+        if (!this.topicDoc.resources) return false;
+        return this.topicDoc.resources.length > 0;
       },
     },
     methods: {
@@ -92,6 +128,27 @@
           console.error(error);
         }
         this.editLoading = false;
+      },
+      async deleteTopic () {
+        if (this.deleteDisabled) return;
+
+        this.deleteLoading = true;
+
+        try {
+          const groupReference = this.$database.collection('groups').doc(this.groupId);
+          const topicReference = groupReference.collection('topics').doc(this.topicId);
+          await groupReference.update({
+            topics: firebase.firestore.FieldValue.arrayRemove(topicReference),
+          });
+          await topicReference.delete();
+
+          this.showDialog = false;
+        } catch (error) {
+          this.$toast.error('Podczas usuwania tematu wystąpił nieoczekiwany błąd');
+          console.error(error);
+        }
+
+        this.deleteLoading = false;
       },
     },
   };
