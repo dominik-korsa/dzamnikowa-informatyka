@@ -11,6 +11,10 @@
         "source": "**",
         "destination": "/index.html"
       }
+    ],
+    "predeploy": [
+      "npm run lint",
+      "npm run build"
     ]
   },
   "functions": {
