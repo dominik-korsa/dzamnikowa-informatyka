@@ -49,7 +49,7 @@
           v-if="group.topics.length === 0"
           class="px-4 py-6 text-center"
         >
-          Brak zawartości w grupie
+          Brak tematów w grupie
         </div>
         <template v-else>
           <draggable
@@ -116,7 +116,7 @@
                 <v-list-item
                   v-for="resource in topic.resources"
                   :key="resource.id"
-                  :to="`/grupy/${group.id}/tematy/${topic.id}/zawartosc/${resource.id}`"
+                  :to="`/grupy/${group.id}/zasoby/${resource.id}`"
                   dense
                 >
                   <v-list-item-icon>
@@ -162,7 +162,7 @@
               <v-list-item
                 v-for="resource in topic.resources"
                 :key="resource.id"
-                :to="`/grupy/${group.id}/tematy/${topic.id}/zawartosc/${resource.id}`"
+                :to="`/grupy/${group.id}/zasoby/${resource.id}`"
                 dense
               >
                 <v-list-item-icon>
