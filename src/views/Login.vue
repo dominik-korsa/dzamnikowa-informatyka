@@ -40,6 +40,15 @@
               <v-card-actions>
                 <div class="d-flex flex-column grow">
                   <v-btn
+                    text
+                    outlined
+                    :href="privacyPolicyConfig.link"
+                    target="_blank"
+                  >
+                    Polityka Prywatności
+                  </v-btn>
+                  <v-btn
+                    class="mt-2"
                     block
                     color="secondary"
                     :large="$vuetify.breakpoint.smAndUp"
@@ -72,11 +81,13 @@
 </template>
 
 <script>
+  import privacyPolicyConfig from '@/privacy-policy-config';
 
   export default {
     data: () => ({
       googlePopupOpenCount: 0,
       facebookPopupOpenCount: 0,
+      privacyPolicyConfig,
     }),
     methods: {
       async showSignInWithGoogle () {

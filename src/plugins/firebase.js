@@ -1,4 +1,5 @@
 /* eslint-disable no-param-reassign */
+import privacyPolicyConfig from '@/privacy-policy-config';
 import store from '@/store';
 import Firebase from 'firebase/app';
 import 'firebase/firestore';
@@ -46,6 +47,7 @@ export default {
           userDataDocReference.set({
             displayName: user.displayName,
             photoURL: user.photoURL,
+            privacyPolicyAcceptedVersion: privacyPolicyConfig.version,
           });
         } else {
           userDataDocReference.update({

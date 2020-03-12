@@ -23,6 +23,7 @@ const store = new Vuex.Store({
         displayName: user.displayName,
         email: user.email,
         providerData: user.providerData,
+        privacyPolicyAcceptedVersion: user.privacyPolicyAcceptedVersion,
       } : null);
     },
     updateUserLoaded (state, value) {

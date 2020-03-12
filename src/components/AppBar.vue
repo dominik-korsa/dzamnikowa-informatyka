@@ -1,12 +1,12 @@
 <template>
   <v-app-bar
     app
-    color="primary white--text"
+    color="primary"
+    dark
     clipped-left
   >
     <v-app-bar-nav-icon
       v-if="$vuetify.breakpoint.smAndDown"
-      color="white"
       @click="$emit('click:nav-icon')"
     />
 
@@ -134,6 +134,18 @@
           </v-list-item-icon>
           <v-list-item-title>Wyloguj się</v-list-item-title>
         </v-list-item>
+        <v-list-item
+          :href="privacyPolicyConfig.link"
+          target="_blank"
+        >
+          <v-list-item-icon>
+            <v-icon>mdi-lock</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Polityka Prywatności</v-list-item-title>
+            <v-list-item-subtitle v-text="privacyPolicyConfig.dateFull" />
+          </v-list-item-content>
+        </v-list-item>
       </v-list>
     </v-menu>
     <change-display-name-dialog v-model="changeDisplayNameDialogVisible" />
@@ -142,6 +154,7 @@
 
 <script>
   import ChangeDisplayNameDialog from '@/components/ChangeDisplayNameDialog.vue';
+  import privacyPolicyConfig from '@/privacy-policy-config';
 
   export default {
     components: {
@@ -151,6 +164,7 @@
       changeDisplayNameDialogVisible: false,
       googleLoading: false,
       facebookLoading: false,
+      privacyPolicyConfig,
     }),
     computed: {
       addedProviders () {
