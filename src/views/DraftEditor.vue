@@ -69,6 +69,8 @@
         <v-btn
           class="ml-2"
           color="secondary"
+          :disabled="publishDisabled"
+          @click="showPublishDialog"
         >
           Opublikuj szkic
         </v-btn>
@@ -99,12 +101,47 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog
+      v-model="publishDialogVisible"
+      :max-width="384"
+    >
+      <v-card>
+        <v-card-title>Gdzie opublikować temat?</v-card-title>
+        <v-card-text>Wybierz temat do którego zostanie dodany zasób</v-card-text>
+        <v-select
+          v-model="selectedPublishTopic"
+          label="Temat"
+          :items="topicItems"
+          outlined
+          class="mx-4"
+        />
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            text
+            @click="publishDialogVisible = false"
+          >
+            Anuluj
+          </v-btn>
+          <v-btn
+            color="secondary"
+            outlined
+            :disabled="!selectedPublishTopic"
+            @click="publishSketch"
+          >
+            Opublikuj
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script>
+  import firebase from 'firebase/app';
   import { debounce } from 'lodash';
   import VueMarkdown from 'vue-markdown';
+  import 'firebase/firestore';
 
   export default {
     components: {
@@ -112,15 +149,31 @@
     },
     data: () => ({
       draftDoc: null,
+      groupDoc: null,
       name: '',
       description: '',
       saveChangesDebounced: null,
       saveLoading: false,
       deleteDialogVisible: false,
+      publishDialogVisible: false,
+      selectedPublishTopic: null,
       nameRules: [
         (v) => !!v || 'Nazwa nie może być pusta',
       ],
     }),
+    computed: {
+      topicItems () {
+        if (!this.groupDoc) return null;
+        if (!this.groupDoc.topics) return [];
+        return this.groupDoc.topics.map((topic) => ({
+          value: topic.id,
+          text: topic.name,
+        }));
+      },
+      publishDisabled () {
+        return !this.name;
+      },
+    },
     watch: {
       draftDoc: {
         handler (value) {
@@ -136,6 +189,9 @@
       },
       '$route.params': {
         async handler (value) {
+          this.$bind('groupDoc', this.$database.collection('groups').doc(this.$route.params.groupId), {
+            maxRefDepth: 1,
+          });
           await this.$bind('draftDoc', this.$database
             .collection('groups').doc(this.$route.params.groupId)
             .collection('drafts').doc(this.$route.params.draftId));
@@ -168,6 +224,30 @@
           this.saveLoading = false;
         } catch (error) {
           this.$toast.error('Nie udało się zapisać zmian');
+          console.error(error);
+        }
+      },
+      showPublishDialog () {
+        this.selectedPublishTopic = null;
+        this.publishDialogVisible = true;
+      },
+      async publishSketch () {
+        if (this.saveLoading) return;
+        if (!this.selectedPublishTopic) return;
+
+        try {
+          const groupReference = this.$database.collection('groups').doc(this.$route.params.groupId);
+          const topicReference = groupReference.collection('topics').doc(this.selectedPublishTopic);
+          const draftReference = groupReference.collection('drafts').doc(this.$route.params.draftId);
+          const draftData = (await draftReference.get()).data();
+          const resourceReference = await groupReference.collection('resources').add(draftData);
+          await topicReference.update({
+            resources: firebase.firestore.FieldValue.arrayUnion(resourceReference),
+          });
+          await draftReference.delete();
+          this.$router.push(`/grupy/${this.$route.params.groupId}/zasoby/${resourceReference.id}`);
+        } catch (error) {
+          this.$toast.error('Podczas publikowania wystąpił nieoczekiwany błąd');
           console.error(error);
         }
       },
