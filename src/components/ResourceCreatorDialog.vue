@@ -4,12 +4,12 @@
     max-width="384"
   >
     <v-card>
-      <v-card-title>Nowy materiał</v-card-title>
+      <v-card-title>Nowy zasób</v-card-title>
       <v-form @submit.prevent="submit">
         <v-card-text>
           <v-text-field
-            v-model="materialName"
-            label="Nazwa materiału"
+            v-model="resourceName"
+            label="Nazwa zasobu"
             outlined
             hide-details
           />
@@ -20,7 +20,7 @@
             color="secondary"
             outlined
             type="submit"
-            :disabled="materialName.trim() === ''"
+            :disabled="resourceName.trim() === ''"
           >
             Stwórz
           </v-btn>
@@ -34,17 +34,18 @@
   export default {
     data: () => ({
       visible: false,
-      materialName: '',
+      resourceName: '',
       groupId: null,
     }),
     methods: {
-      show (groupId) {
+      show (groupId, resourceType) {
         this.groupId = groupId;
-        this.materialName = '';
+        this.resourceName = '';
+        this.resourceType = resourceType;
         this.visible = true;
       },
       async submit () {
-        if (this.materialName.trim() === '') return;
+        if (this.resourceName.trim() === '') return;
 
         if (!this.$store.state.user) {
           this.$toast.error('Błąd podczas pobierania danych o użytkowniku');
@@ -53,11 +54,11 @@
 
         try {
           const groupReference = this.$database.collection('groups').doc(this.groupId);
-          const newMaterialReference = await groupReference.collection('sketches').add({
-            name: this.materialName.trim(),
-            type: 'material',
+          const newSketchReference = await groupReference.collection('sketches').add({
+            name: this.resourceName.trim(),
+            type: this.resourceType,
           });
-          this.$router.push(`/grupy/${this.groupId}/szkice/${newMaterialReference.id}`);
+          this.$router.push(`/grupy/${this.groupId}/szkice/${newSketchReference.id}`);
           this.visible = false;
         } catch (error) {
           this.$toast.error('Podczas tworzenia materiału wystąpił nieoczekiwany błąd');

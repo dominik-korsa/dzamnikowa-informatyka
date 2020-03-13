@@ -65,7 +65,7 @@
                 </v-list-item-title>
               </v-list-item>
               <v-list-item
-                @click="createNewMaterial(group.id)"
+                @click="createNewResource(group.id, 'material')"
               >
                 <v-list-item-icon>
                   <v-icon>mdi-file-document-box</v-icon>
@@ -251,14 +251,14 @@
         </template>
       </v-list>
     </template>
-    <material-creator-dialog ref="materialCreatorDialog" />
+    <resource-creator-dialog ref="resourceCreatorDialog" />
     <topic-creator-dialog ref="topicCreatorDialog" />
     <topic-settings-dialog ref="topicSettingsDialog" />
   </v-navigation-drawer>
 </template>
 
 <script>
-  import MaterialCreatorDialog from '@/components/MaterialCreatorDialog.vue';
+  import ResourceCreatorDialog from '@/components/ResourceCreatorDialog.vue';
   import TopicCreatorDialog from '@/components/TopicCreatorDialog.vue';
   import TopicSettingsDialog from '@/components/TopicSettingsDialog.vue';
   import { indexOf, unionBy, defaults, difference } from 'lodash';
@@ -266,7 +266,7 @@
 
   export default {
     components: {
-      MaterialCreatorDialog,
+      ResourceCreatorDialog,
       TopicCreatorDialog,
       TopicSettingsDialog,
       draggable,
@@ -442,8 +442,8 @@
       createNewTopic (groupId) {
         this.$refs.topicCreatorDialog.show(groupId);
       },
-      createNewMaterial (groupId) {
-        this.$refs.materialCreatorDialog.show(groupId);
+      createNewResource (groupId, resourceType) {
+        this.$refs.resourceCreatorDialog.show(groupId, resourceType);
       },
       showTopicSettings (groupId, topicId) {
         this.$refs.topicSettingsDialog.show(groupId, topicId);
