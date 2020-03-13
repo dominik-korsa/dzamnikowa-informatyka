@@ -11,11 +11,11 @@ const routes = [
   },
   {
     path: '/zarzadzanie-grupami',
-    component: () => import(/* webpackChunkName: "groups" */ '../views/GroupManager.vue'),
+    component: () => import(/* webpackChunkName: "group-manager" */ '../views/GroupManager.vue'),
   },
   {
     path: '/zarzadzanie-grupami/:groupId',
-    component: () => import(/* webpackChunkName: "groups" */ '../views/GroupManager.vue'),
+    component: () => import(/* webpackChunkName: "group-manager" */ '../views/GroupManager.vue'),
   },
   {
     path: '/dolacz-do-grupy',
@@ -24,6 +24,10 @@ const routes = [
   {
     path: '/grupy/:groupId/wersje-robocze/:draftId',
     component: () => import(/* webpackChunkName: "draft-editor" */ '../views/DraftEditor.vue'),
+  },
+  {
+    path: '/grupy/:groupId/zasoby/:resourceId',
+    component: () => import(/* webpackChunkName: "resource" */ '../views/Resource.vue'),
   },
 ];
 
