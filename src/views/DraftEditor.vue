@@ -1,6 +1,23 @@
 <template>
   <v-container class="fill-height">
-    <div class="grow fill-height d-flex flex-column">
+    <v-row
+      v-if="!draftDoc"
+      align="center"
+      justify="center"
+      class="fill-height"
+    >
+      <v-col cols="auto">
+        <v-progress-circular
+          indeterminate
+          color="primary"
+          :size="64"
+        />
+      </v-col>
+    </v-row>
+    <div
+      v-else
+      class="grow fill-height d-flex flex-column"
+    >
       <v-text-field
         v-model="name"
         class="shrink"
