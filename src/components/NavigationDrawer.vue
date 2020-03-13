@@ -20,10 +20,10 @@
         <v-list-item-title v-text="link.title" />
       </v-list-item>
     </v-list>
-    <v-divider v-if="groups && groups.length > 0" />
     <template
       v-for="group in groups"
     >
+      <v-divider :key="`divider:${group.id}`" />
       <v-subheader
         :key="`subheader:${group.id}`"
         v-text="group.name"
@@ -33,18 +33,88 @@
         subheader
         expand
       >
-        <v-list-item
-          v-if="group.teacher && $store.state.userData && $store.state.userData.teacherModeEnabled"
-          @click="createNewTopic(group.id)"
-        >
-          <v-list-item-icon>
-            <v-icon>mdi-plus</v-icon>
-          </v-list-item-icon>
+        <template v-if="group.teacher && $store.state.userData && $store.state.userData.teacherModeEnabled">
+          <v-menu>
+            <template v-slot:activator="{ on }">
+              <v-list-item v-on="on">
+                <v-list-item-icon>
+                  <v-icon>mdi-plus</v-icon>
+                </v-list-item-icon>
 
-          <v-list-item-title>
-            Nowy temat
-          </v-list-item-title>
-        </v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    Utwórz nowy
+                  </v-list-item-title>
+                </v-list-item-content>
+
+                <v-list-item-icon>
+                  <v-icon>mdi-dots-horizontal</v-icon>
+                </v-list-item-icon>
+              </v-list-item>
+            </template>
+            <v-list>
+              <v-list-item
+                @click="createNewTopic(group.id)"
+              >
+                <v-list-item-icon>
+                  <v-icon>mdi-clipboard-outline</v-icon>
+                </v-list-item-icon>
+
+                <v-list-item-title>
+                  Temat
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item
+                @click="createNewMaterial(group.id)"
+              >
+                <v-list-item-icon>
+                  <v-icon>mdi-file-document-box</v-icon>
+                </v-list-item-icon>
+                <v-list-item-title>
+                  Materiał
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+          <v-list-group prepend-icon="mdi-pencil">
+            <template v-slot:activator>
+              <v-list-item-content>
+                <v-list-item-title>Szkice</v-list-item-title>
+              </v-list-item-content>
+            </template>
+
+            <v-list-item
+              v-for="sketch in group.sketches"
+              :key="sketch.id"
+              dense
+              :to="`/grupy/${group.id}/szkice/${sketch.id}`"
+            >
+              <v-list-item-icon>
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                    <v-icon
+                      v-if="sketch.type === 'material'"
+                      v-on="on"
+                    >
+                      <!-- Outdated icon name -->
+                      mdi-file-document-box
+                    </v-icon>
+                    <v-icon
+                      v-else
+                      v-on="on"
+                    >
+                      mdi-file-question
+                    </v-icon>
+                  </template>
+                  <span v-if="sketch.type === 'material'">Materiał</span>
+                  <span v-else>Nieznany typ zasobu</span>
+                </v-tooltip>
+              </v-list-item-icon>
+
+              <v-list-item-title v-text="sketch.name" />
+            </v-list-item>
+          </v-list-group>
+        </template>
         <div
           v-if="group.topics.length === 0"
           class="px-4 py-6 text-center"
@@ -82,21 +152,6 @@
                 <v-list-item-content>
                   <v-list-item-title>
                     Ustawienia tematu
-                  </v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-
-              <v-list-item
-                :to="`/grupy/${group.id}/tematy/${topic.id}/nowy-zasob`"
-                dense
-              >
-                <v-list-item-icon>
-                  <v-icon>mdi-plus</v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-title>
-                    Nowy zasób
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
@@ -196,19 +251,22 @@
         </template>
       </v-list>
     </template>
+    <material-creator-dialog ref="materialCreatorDialog" />
     <topic-creator-dialog ref="topicCreatorDialog" />
     <topic-settings-dialog ref="topicSettingsDialog" />
   </v-navigation-drawer>
 </template>
 
 <script>
+  import MaterialCreatorDialog from '@/components/MaterialCreatorDialog.vue';
   import TopicCreatorDialog from '@/components/TopicCreatorDialog.vue';
   import TopicSettingsDialog from '@/components/TopicSettingsDialog.vue';
-  import { indexOf, unionBy, defaults } from 'lodash';
+  import { indexOf, unionBy, defaults, difference } from 'lodash';
   import draggable from 'vuedraggable';
 
   export default {
     components: {
+      MaterialCreatorDialog,
       TopicCreatorDialog,
       TopicSettingsDialog,
       draggable,
@@ -240,6 +298,7 @@
       ],
       updatingGroups: [],
       updatingResources: [],
+      sketches: {},
     }),
     computed: {
       visibleLinks () {
@@ -285,7 +344,57 @@
                 ...topic,
                 resources: topic.resources.filter(this.isResourceValid),
               })),
-          }));
+          }))
+          .map((group) => {
+            if (this.sketches[group.id] && this.sketches[group.id].data) {
+              return {
+                ...group,
+                sketches: this.sketches[group.id].data,
+              };
+            }
+            return {
+              ...group,
+              sketches: [],
+            };
+          });
+      },
+    },
+    watch: {
+      '$store.state.teachedGroups': {
+        handler (newValue) {
+          let removedGroupIds;
+          let addedGroupIds;
+          if (newValue === null) {
+            removedGroupIds = Object.keys(this.sketches);
+            addedGroupIds = [];
+          } else {
+            removedGroupIds = difference(Object.keys(this.sketches), newValue.map((group) => group.id));
+            addedGroupIds = difference(newValue.map((group) => group.id), Object.keys(this.sketches));
+          }
+
+          removedGroupIds.forEach((id) => {
+            this.sketches[id].unsubscribe();
+            this.$set(this.sketches, id, undefined);
+          });
+
+          addedGroupIds.forEach((id) => {
+            const unsubscribe = this.$database.collection('groups').doc(id).collection('sketches').onSnapshot((snapshot) => {
+              const sketches = [];
+              snapshot.forEach((doc) => {
+                sketches.push({
+                  id: doc.id,
+                  ...doc.data(),
+                });
+              });
+              this.$set(this.sketches[id], 'data', sketches);
+            });
+            this.$set(this.sketches, id, {
+              unsubscribe,
+              data: [],
+            });
+          });
+        },
+        immediate: true,
       },
     },
     methods: {
@@ -332,6 +441,9 @@
       },
       createNewTopic (groupId) {
         this.$refs.topicCreatorDialog.show(groupId);
+      },
+      createNewMaterial (groupId) {
+        this.$refs.materialCreatorDialog.show(groupId);
       },
       showTopicSettings (groupId, topicId) {
         this.$refs.topicSettingsDialog.show(groupId, topicId);
