@@ -41,6 +41,7 @@
             hint="Możesz używać markdown"
             persistent-hint
             @input="input"
+            @keydown="keydown"
           />
         </v-col>
         <v-col
@@ -211,6 +212,15 @@
       input () {
         this.saveLoading = true;
         this.saveChangesDebounced();
+      },
+      keydown (event) {
+        const keyCode = event.keyCode || event.which;
+
+        if (keyCode === 9) {
+          event.preventDefault();
+
+          document.execCommand('insertText', false, '\t');
+        }
       },
       async saveChanges () {
         try {
