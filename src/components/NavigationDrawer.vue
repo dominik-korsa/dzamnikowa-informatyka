@@ -79,21 +79,21 @@
           <v-list-group prepend-icon="mdi-pencil">
             <template v-slot:activator>
               <v-list-item-content>
-                <v-list-item-title>Szkice</v-list-item-title>
+                <v-list-item-title>Wersje robocze</v-list-item-title>
               </v-list-item-content>
             </template>
 
             <v-list-item
-              v-for="sketch in group.sketches"
-              :key="sketch.id"
+              v-for="draft in group.drafts"
+              :key="draft.id"
               dense
-              :to="`/grupy/${group.id}/szkice/${sketch.id}`"
+              :to="`/grupy/${group.id}/wersje-robocze/${draft.id}`"
             >
               <v-list-item-icon>
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
                     <v-icon
-                      v-if="sketch.type === 'material'"
+                      v-if="draft.type === 'material'"
                       v-on="on"
                     >
                       <!-- Outdated icon name -->
@@ -106,12 +106,12 @@
                       mdi-file-question
                     </v-icon>
                   </template>
-                  <span v-if="sketch.type === 'material'">Materiał</span>
+                  <span v-if="draft.type === 'material'">Materiał</span>
                   <span v-else>Nieznany typ zasobu</span>
                 </v-tooltip>
               </v-list-item-icon>
 
-              <v-list-item-title v-text="sketch.name" />
+              <v-list-item-title v-text="draft.name" />
             </v-list-item>
           </v-list-group>
         </template>
@@ -298,7 +298,7 @@
       ],
       updatingGroups: [],
       updatingResources: [],
-      sketches: {},
+      drafts: {},
     }),
     computed: {
       visibleLinks () {
@@ -346,15 +346,15 @@
               })),
           }))
           .map((group) => {
-            if (this.sketches[group.id] && this.sketches[group.id].data) {
+            if (this.drafts[group.id] && this.drafts[group.id].data) {
               return {
                 ...group,
-                sketches: this.sketches[group.id].data,
+                drafts: this.drafts[group.id].data,
               };
             }
             return {
               ...group,
-              sketches: [],
+              drafts: [],
             };
           });
       },
@@ -365,30 +365,30 @@
           let removedGroupIds;
           let addedGroupIds;
           if (newValue === null) {
-            removedGroupIds = Object.keys(this.sketches);
+            removedGroupIds = Object.keys(this.drafts);
             addedGroupIds = [];
           } else {
-            removedGroupIds = difference(Object.keys(this.sketches), newValue.map((group) => group.id));
-            addedGroupIds = difference(newValue.map((group) => group.id), Object.keys(this.sketches));
+            removedGroupIds = difference(Object.keys(this.drafts), newValue.map((group) => group.id));
+            addedGroupIds = difference(newValue.map((group) => group.id), Object.keys(this.drafts));
           }
 
           removedGroupIds.forEach((id) => {
-            this.sketches[id].unsubscribe();
-            this.$set(this.sketches, id, undefined);
+            this.drafts[id].unsubscribe();
+            this.$set(this.drafts, id, undefined);
           });
 
           addedGroupIds.forEach((id) => {
-            const unsubscribe = this.$database.collection('groups').doc(id).collection('sketches').onSnapshot((snapshot) => {
-              const sketches = [];
+            const unsubscribe = this.$database.collection('groups').doc(id).collection('drafts').onSnapshot((snapshot) => {
+              const drafts = [];
               snapshot.forEach((doc) => {
-                sketches.push({
+                drafts.push({
                   id: doc.id,
                   ...doc.data(),
                 });
               });
-              this.$set(this.sketches[id], 'data', sketches);
+              this.$set(this.drafts[id], 'data', drafts);
             });
-            this.$set(this.sketches, id, {
+            this.$set(this.drafts, id, {
               unsubscribe,
               data: [],
             });

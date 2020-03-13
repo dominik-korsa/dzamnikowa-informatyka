@@ -54,11 +54,11 @@
 
         try {
           const groupReference = this.$database.collection('groups').doc(this.groupId);
-          const newSketchReference = await groupReference.collection('sketches').add({
+          const newDraftReference = await groupReference.collection('drafts').add({
             name: this.resourceName.trim(),
             type: this.resourceType,
           });
-          this.$router.push(`/grupy/${this.groupId}/szkice/${newSketchReference.id}`);
+          this.$router.push(`/grupy/${this.groupId}/wersje-robocze/${newDraftReference.id}`);
           this.visible = false;
         } catch (error) {
           this.$toast.error('Podczas tworzenia materiału wystąpił nieoczekiwany błąd');
