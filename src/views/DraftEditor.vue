@@ -57,7 +57,48 @@
           </v-card>
         </v-col>
       </v-row>
+      <div class="d-flex">
+        <v-spacer />
+        <v-btn
+          color="red"
+          outlined
+          @click="deleteDialogVisible = true"
+        >
+          Usuń szkic
+        </v-btn>
+        <v-btn
+          class="ml-2"
+          color="secondary"
+        >
+          Opublikuj szkic
+        </v-btn>
+      </div>
     </div>
+    <v-dialog
+      v-model="deleteDialogVisible"
+      :max-width="384"
+    >
+      <v-card>
+        <v-card-title>Usunąć wersję roboczą?</v-card-title>
+        <v-card-text>Usuniętej wersji nie można przywrócić.</v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            text
+            @click="deleteDialogVisible = false"
+          >
+            Anuluj
+          </v-btn>
+          <v-btn
+            color="red"
+            outlined
+            @click="deleteSketch"
+          >
+            Usuń
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -74,6 +115,8 @@
       name: '',
       description: '',
       saveChangesDebounced: null,
+      saveLoading: false,
+      deleteDialogVisible: false,
       nameRules: [
         (v) => !!v || 'Nazwa nie może być pusta',
       ],
@@ -91,17 +134,26 @@
         },
         immediate: true,
       },
+      '$route.params': {
+        async handler (value) {
+          await this.$bind('draftDoc', this.$database
+            .collection('groups').doc(this.$route.params.groupId)
+            .collection('drafts').doc(this.$route.params.draftId));
+          if (!this.draftDoc) return;
+          this.description = this.draftDoc.description || '';
+          this.name = this.draftDoc.name || '';
+        },
+        immediate: true,
+      },
     },
     created () {
       this.saveChangesDebounced = debounce(this.saveChanges, 500, {
         maxWait: 2500,
       });
-      this.$bind('draftDoc', this.$database
-        .collection('groups').doc(this.$route.params.groupId)
-        .collection('drafts').doc(this.$route.params.draftId));
     },
     methods: {
       input () {
+        this.saveLoading = true;
         this.saveChangesDebounced();
       },
       async saveChanges () {
@@ -113,8 +165,23 @@
               description: this.description,
               name: this.name.trim() || this.draftDoc.name,
             });
+          this.saveLoading = false;
         } catch (error) {
           this.$toast.error('Nie udało się zapisać zmian');
+          console.error(error);
+        }
+      },
+      async deleteSketch () {
+        if (this.saveLoading) return;
+
+        try {
+          await this.$database
+            .collection('groups').doc(this.$route.params.groupId)
+            .collection('drafts').doc(this.$route.params.draftId)
+            .delete();
+          this.$router.push('/');
+        } catch (error) {
+          this.$toast.error('Podczas usuwania wystąpił nieoczekiwany błąd');
           console.error(error);
         }
       },
