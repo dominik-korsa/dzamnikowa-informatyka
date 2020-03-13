@@ -21,6 +21,10 @@ const routes = [
     path: '/dolacz-do-grupy',
     component: () => import(/* webpackChunkName: "group-join" */ '../views/GroupJoin.vue'),
   },
+  {
+    path: '/grupy/:groupId/wersje-robocze/:draftId',
+    component: () => import(/* webpackChunkName: "draft-editor" */ '../views/DraftEditor.vue'),
+  },
 ];
 
 const router = new VueRouter({
