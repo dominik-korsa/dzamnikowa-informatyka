@@ -255,6 +255,12 @@
                         mdi-file-document-box
                       </v-icon>
                       <v-icon
+                        v-else-if="resource.type === 'exercise'"
+                        v-on="on"
+                      >
+                        mdi-book
+                      </v-icon>
+                      <v-icon
                         v-else
                         v-on="on"
                       >
@@ -262,6 +268,7 @@
                       </v-icon>
                     </template>
                     <span v-if="resource.type === 'material'">Materiał</span>
+                    <span v-else-if="resource.type === 'exercise'">Ćwiczenie</span>
                     <span v-else>Nieznany typ zasobu</span>
                   </v-tooltip>
                 </v-list-item-icon>
