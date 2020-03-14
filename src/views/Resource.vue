@@ -1,7 +1,7 @@
 <template>
   <v-container class="fill-height">
     <v-row
-      v-if="!resourceDoc"
+      v-if="loading"
       align="center"
       justify="center"
       class="fill-height"
@@ -12,6 +12,18 @@
           color="primary"
           :size="64"
         />
+      </v-col>
+    </v-row>
+    <v-row
+      v-else-if="!resourceDoc"
+      align="center"
+      justify="center"
+      class="fill-height pa-8"
+    >
+      <v-col cols="auto">
+        <h1 class="text-center display-1">
+          Wybrany zasób nie istnieje lub nie masz do niego dostępu
+        </h1>
       </v-col>
     </v-row>
     <div
@@ -70,13 +82,23 @@
     },
     data: () => ({
       resourceDoc: null,
+      loading: true,
     }),
     watch: {
       '$route.params': {
         async handler (value) {
-          await this.$bind('resourceDoc', this.$database
-            .collection('groups').doc(this.$route.params.groupId)
-            .collection('resources').doc(this.$route.params.resourceId));
+          this.loading = true;
+          try {
+            await this.$bind('resourceDoc', this.$database
+              .collection('groups').doc(this.$route.params.groupId)
+              .collection('resources').doc(this.$route.params.resourceId));
+          } catch (error) {
+            if (error.code !== 'permission-denied') {
+              this.$toast.error('Podczas wczytywania zasobu wystąpił nieoczekiwany błąd');
+              console.error(error);
+            }
+          }
+          this.loading = false;
         },
         immediate: true,
       },
