@@ -35,7 +35,7 @@
           'flex-column': $vuetify.breakpoint.mdAndDown,
           'flex-row align-center justify-space-between': $vuetify.breakpoint.lgAndUp,
         }"
-        class="mt-2 mb-4 mx-4"
+        class="my-2 mx-4"
       >
         <h1
           class="display-1"
@@ -50,25 +50,41 @@
           100 punktów
         </h1>
       </div>
-      <v-card
-        v-if="!resourceDoc.description"
-        class="grow pa-4 d-flex flex-column align-center justify-center"
+      <v-tabs
+        v-model="tab"
+        class="shrink"
+        centered
       >
-        <h1
-          class="text-center display-1"
-        >
-          Zasób nie ma opisu
-        </h1>
-      </v-card>
-      <v-card
-        v-else
-        class="grow pa-4"
-        outlined
+        <v-tab>
+          Treść
+        </v-tab>
+      </v-tabs>
+      <v-tabs-items
+        v-model="tab"
+        class="grow tabs-items-fill-height"
       >
-        <vue-markdown
-          :source="resourceDoc.description"
-        />
-      </v-card>
+        <v-tab-item class="fill-height">
+          <v-card
+            v-if="!resourceDoc.description"
+            class="fill-height mt-2 pa-4 d-flex flex-column align-center justify-center"
+          >
+            <h1
+              class="text-center display-1"
+            >
+              Zasób nie ma opisu
+            </h1>
+          </v-card>
+          <v-card
+            v-else
+            class="fill-height mt-2 pa-4"
+            outlined
+          >
+            <vue-markdown
+              :source="resourceDoc.description"
+            />
+          </v-card>
+        </v-tab-item>
+      </v-tabs-items>
     </div>
   </v-container>
 </template>
@@ -83,6 +99,7 @@
     data: () => ({
       resourceDoc: null,
       loading: true,
+      tab: null,
     }),
     watch: {
       '$route.params': {
@@ -105,3 +122,9 @@
     },
   };
 </script>
+
+<style lang="scss">
+  .tabs-items-fill-height .v-window__container {
+    height: 100%;
+  }
+</style>
