@@ -42,13 +42,13 @@
           v-text="resourceDoc.name"
         />
         <h1
+          v-if="maxPointsString"
           class="headline"
           :class="{
             'mt-3': $vuetify.breakpoint.mdAndDown
           }"
-        >
-          100 punktów
-        </h1>
+          v-text="maxPointsString"
+        />
       </div>
       <v-tabs
         v-model="tab"
@@ -92,6 +92,9 @@
 <script>
   import VueMarkdown from 'vue-markdown';
 
+  const pluralRules = new Intl.PluralRules('pl-PL');
+  const pluralPointsStrings = { many: 'punktów', one: 'punkt', few: 'punkty' };
+
   export default {
     components: {
       VueMarkdown,
@@ -101,6 +104,12 @@
       loading: true,
       tab: null,
     }),
+    computed: {
+      maxPointsString () {
+        if (!this.resourceDoc || !this.resourceDoc.maxPoints || this.resourceDoc.type !== 'exercise') return null;
+        return `${this.resourceDoc.maxPoints} ${pluralPointsStrings[pluralRules.select(this.resourceDoc.maxPoints)]}`;
+      },
+    },
     watch: {
       '$route.params': {
         async handler (value) {

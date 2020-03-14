@@ -208,7 +208,8 @@
       ],
       maxPointsRules: [
         (v) => v !== null || 'Liczba punktów jest wymagana',
-        (v) => v >= 0 || 'Liczba punktów nie może być liczbą ujemną',
+        (v) => parseFloat(v) >= 0 || 'Liczba punktów musi być liczbą całkowitą',
+        (v) => parseInt(v, 10) >= 0 || 'Liczba punktów nie może być liczbą ujemną',
       ],
     }),
     computed: {
@@ -221,7 +222,7 @@
         }));
       },
       publishDisabled () {
-        return !this.name || (this.draftDoc.type === 'exercise' && (this.maxPoints === null || this.maxPoints < 0));
+        return !this.name || (this.draftDoc.type === 'exercise' && (parseInt(this.maxPoints, 10) === null || parseInt(this.maxPoints, 10) < 0 || parseFloat(this.maxPoints) % 1 !== 0));
       },
     },
     watch: {
@@ -283,7 +284,7 @@
             .update({
               description: this.description,
               name: this.name.trim() || this.draftDoc.name,
-              maxPoints: this.draftDoc.type === 'exercise' ? this.maxPoints : undefined,
+              maxPoints: this.draftDoc.type === 'exercise' ? parseInt(this.maxPoints, 10) : undefined,
             });
           this.saveLoading = false;
         } catch (error) {
