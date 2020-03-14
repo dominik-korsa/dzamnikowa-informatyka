@@ -110,16 +110,11 @@
         </v-list-item>
         <v-list-item
           v-if="addedProviders.includes('facebook.com')"
-          :disabled="addedProviders.length === 1 || facebookLoading"
-          @click="unlinkFacebook"
+          :disabled="addedProviders.length === 1"
+          @click="facebookUnlinkDialogVisible = true"
         >
           <v-list-item-icon>
-            <v-progress-circular
-              v-if="facebookLoading"
-              indeterminate
-              :size="24"
-            />
-            <v-icon v-else>
+            <v-icon>
               mdi-facebook
             </v-icon>
           </v-list-item-icon>
@@ -149,19 +144,23 @@
       </v-list>
     </v-menu>
     <change-display-name-dialog v-model="changeDisplayNameDialogVisible" />
+    <facebook-unlink-dialog v-model="facebookUnlinkDialogVisible" />
   </v-app-bar>
 </template>
 
 <script>
   import ChangeDisplayNameDialog from '@/components/ChangeDisplayNameDialog.vue';
+  import FacebookUnlinkDialog from '@/components/FacebookUnlinkDialog.vue';
   import privacyPolicyConfig from '@/privacy-policy-config';
 
   export default {
     components: {
       ChangeDisplayNameDialog,
+      FacebookUnlinkDialog,
     },
     data: () => ({
       changeDisplayNameDialogVisible: false,
+      facebookUnlinkDialogVisible: false,
       googleLoading: false,
       facebookLoading: false,
       privacyPolicyConfig,
@@ -207,18 +206,6 @@
           await this.$auth.linkFacebook();
         } catch (error) {
           this.$toast.error('Nie udało się połączyć konta');
-          console.error(error);
-        }
-
-        this.facebookLoading = false;
-      },
-      async unlinkFacebook () {
-        this.facebookLoading = true;
-
-        try {
-          await this.$auth.unlinkFacebook();
-        } catch (error) {
-          this.$toast.error('Nie udało się odłączyć konta');
           console.error(error);
         }
 
