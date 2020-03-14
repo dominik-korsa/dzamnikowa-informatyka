@@ -16,7 +16,7 @@
     </v-row>
     <div
       v-else
-      class="grow fill-height d-flex flex-column"
+      class="grow fill-height d-flex flex-column fill-width"
     >
       <v-text-field
         v-model="name"
@@ -298,5 +298,9 @@
     .v-text-field__details {
       max-height: 14px;
     }
+  }
+
+  .fill-width {
+    width: 100%;
   }
 </style>
