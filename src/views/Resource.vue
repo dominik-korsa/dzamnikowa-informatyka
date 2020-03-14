@@ -18,10 +18,26 @@
       v-else
       class="grow fill-height d-flex flex-column"
     >
-      <h1
-        class="mb-4 mt-2 mx-4 display-1"
-        v-text="resourceDoc.name"
-      />
+      <div
+        :class="{
+          'flex-column': $vuetify.breakpoint.mdAndDown,
+          'flex-row align-center justify-space-between': $vuetify.breakpoint.lgAndUp,
+        }"
+        class="mt-2 mb-4 mx-4"
+      >
+        <h1
+          class="display-1"
+          v-text="resourceDoc.name"
+        />
+        <h1
+          class="headline"
+          :class="{
+            'mt-3': $vuetify.breakpoint.mdAndDown
+          }"
+        >
+          100 punktów
+        </h1>
+      </div>
       <v-card
         v-if="!resourceDoc.description"
         class="grow pa-4 d-flex flex-column align-center justify-center"

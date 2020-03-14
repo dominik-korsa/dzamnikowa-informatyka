@@ -74,6 +74,16 @@
                   Materiał
                 </v-list-item-title>
               </v-list-item>
+              <v-list-item
+                @click="createNewResource(group.id, 'exercise')"
+              >
+                <v-list-item-icon>
+                  <v-icon>mdi-book</v-icon>
+                </v-list-item-icon>
+                <v-list-item-title>
+                  Ćwiczenie
+                </v-list-item-title>
+              </v-list-item>
             </v-list>
           </v-menu>
           <v-list-group prepend-icon="mdi-pencil">
@@ -100,6 +110,12 @@
                       mdi-file-document-box
                     </v-icon>
                     <v-icon
+                      v-else-if="draft.type === 'exercise'"
+                      v-on="on"
+                    >
+                      mdi-book
+                    </v-icon>
+                    <v-icon
                       v-else
                       v-on="on"
                     >
@@ -107,6 +123,7 @@
                     </v-icon>
                   </template>
                   <span v-if="draft.type === 'material'">Materiał</span>
+                  <span v-else-if="draft.type === 'exercise'">Ćwiczenie</span>
                   <span v-else>Nieznany typ zasobu</span>
                 </v-tooltip>
               </v-list-item-icon>
@@ -185,6 +202,12 @@
                           mdi-file-document-box
                         </v-icon>
                         <v-icon
+                          v-else-if="resource.type === 'exercise'"
+                          v-on="on"
+                        >
+                          mdi-book
+                        </v-icon>
+                        <v-icon
                           v-else
                           v-on="on"
                         >
@@ -192,6 +215,7 @@
                         </v-icon>
                       </template>
                       <span v-if="resource.type === 'material'">Materiał</span>
+                      <span v-else-if="resource.type === 'exercise'">Ćwiczenie</span>
                       <span v-else>Nieznany typ zasobu</span>
                     </v-tooltip>
                   </v-list-item-icon>

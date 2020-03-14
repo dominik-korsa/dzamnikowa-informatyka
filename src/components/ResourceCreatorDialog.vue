@@ -57,6 +57,7 @@
           const newDraftReference = await groupReference.collection('drafts').add({
             name: this.resourceName.trim(),
             type: this.resourceType,
+            maxPoints: this.resourceType === 'exercise' ? 100 : undefined,
           });
           this.$router.push(`/grupy/${this.groupId}/wersje-robocze/${newDraftReference.id}`);
           this.visible = false;

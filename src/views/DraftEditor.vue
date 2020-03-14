@@ -18,15 +18,59 @@
       v-else
       class="grow fill-height d-flex flex-column fill-width"
     >
-      <v-text-field
-        v-model="name"
+      <v-row
+        v-if="$vuetify.breakpoint.smAndUp"
         class="shrink"
-        label="Nazwa zasobu"
-        outlined
-        :rules="nameRules"
-        :placeholder="(draftDoc ? draftDoc.name : null) || ''"
-        @input="input"
-      />
+      >
+        <v-col :cols="draftDoc && draftDoc.type === 'exercise' ? 8 : 12">
+          <v-text-field
+            v-model="name"
+            class="shrink"
+            label="Nazwa zasobu"
+            outlined
+            :rules="nameRules"
+            :placeholder="(draftDoc ? draftDoc.name : null) || ''"
+            @input="input"
+          />
+        </v-col>
+        <v-col
+          v-if="draftDoc && draftDoc.type === 'exercise'"
+          :cols="4"
+        >
+          <v-text-field
+            v-model="maxPoints"
+            class="shrink"
+            label="Liczba punktów"
+            outlined
+            type="number"
+            :rules="maxPointsRules"
+            min="0"
+            @input="input"
+          />
+        </v-col>
+      </v-row>
+      <div v-else>
+        <v-text-field
+          v-model="name"
+          class="shrink"
+          label="Nazwa zasobu"
+          outlined
+          :rules="nameRules"
+          :placeholder="(draftDoc ? draftDoc.name : null) || ''"
+          @input="input"
+        />
+        <v-text-field
+          v-if="draftDoc && draftDoc.type === 'exercise'"
+          v-model="maxPoints"
+          class="shrink"
+          label="Liczba punktów"
+          outlined
+          type="number"
+          :rules="maxPointsRules"
+          min="0"
+          @input="input"
+        />
+      </div>
       <v-row class="grow">
         <v-col
           class="fill-height"
@@ -152,6 +196,7 @@
       draftDoc: null,
       groupDoc: null,
       name: '',
+      maxPoints: null,
       description: '',
       saveChangesDebounced: null,
       saveLoading: false,
@@ -160,6 +205,10 @@
       selectedPublishTopic: null,
       nameRules: [
         (v) => !!v || 'Nazwa nie może być pusta',
+      ],
+      maxPointsRules: [
+        (v) => v !== null || 'Liczba punktów jest wymagana',
+        (v) => v >= 0 || 'Liczba punktów nie może być liczbą ujemną',
       ],
     }),
     computed: {
@@ -172,7 +221,7 @@
         }));
       },
       publishDisabled () {
-        return !this.name;
+        return !this.name || (this.draftDoc.type === 'exercise' && (this.maxPoints === null || this.maxPoints < 0));
       },
     },
     watch: {
@@ -184,6 +233,9 @@
           }
           if (!this.name) {
             this.name = value.name || '';
+          }
+          if (!this.maxPoints) {
+            this.maxPoints = value.maxPoints || null;
           }
         },
         immediate: true,
@@ -199,6 +251,7 @@
           if (!this.draftDoc) return;
           this.description = this.draftDoc.description || '';
           this.name = this.draftDoc.name || '';
+          this.maxPoints = this.draftDoc.maxPoints || null;
         },
         immediate: true,
       },
@@ -230,6 +283,7 @@
             .update({
               description: this.description,
               name: this.name.trim() || this.draftDoc.name,
+              maxPoints: this.draftDoc.type === 'exercise' ? this.maxPoints : undefined,
             });
           this.saveLoading = false;
         } catch (error) {
