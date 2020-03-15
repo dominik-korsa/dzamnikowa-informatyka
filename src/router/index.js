@@ -29,6 +29,10 @@ const routes = [
     path: '/grupy/:groupId/zasoby/:resourceId',
     component: () => import(/* webpackChunkName: "resource" */ '../views/Resource.vue'),
   },
+  {
+    path: '*',
+    component: () => import(/* webpackChunkName: "page-not-found" */ '../views/PageNotFound.vue'),
+  },
 ];
 
 const router = new VueRouter({
