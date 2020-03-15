@@ -25,6 +25,16 @@ service cloud.firestore {
        	allow read: if request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.students
        		|| request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.teachers;
         allow write: if request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.teachers;
+
+        match /answers/{answerId} {
+          allow read: if (
+            request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.students
+            && resource.data.userId == request.auth.uid
+          ) || request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.teachers;
+          allow create: if request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.students
+            && request.resource.data.userId == request.auth.uid
+            && get(/databases/$(database)/documents/groups/$(groupId)/resources/$(resourceId)).data.type == 'exercise';
+        }
       }
 
       match /drafts/{draftId} {

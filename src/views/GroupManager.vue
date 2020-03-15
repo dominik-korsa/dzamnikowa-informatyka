@@ -60,7 +60,10 @@
         </v-col>
       </v-row>
       <template v-else>
-        <groups-list @click:create-new-group="createNewGroup" />
+        <groups-list
+          vertical
+          @click:create-new-group="createNewGroup"
+        />
         <v-divider />
         <v-row
           v-if="!$route.params.groupId"

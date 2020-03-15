@@ -3,6 +3,7 @@ import privacyPolicyConfig from '@/privacy-policy-config';
 import store from '@/store';
 import Firebase from 'firebase/app';
 import 'firebase/firestore';
+import 'firebase/storage';
 import 'firebase/auth';
 
 const config = {
@@ -19,6 +20,7 @@ export default {
   install (Vue, options) {
     const firebase = Firebase.initializeApp(config);
     const database = firebase.firestore();
+    const storage = firebase.storage();
     const auth = firebase.auth();
     const googleProvider = new Firebase.auth.GoogleAuthProvider();
     const facebookProvider = new Firebase.auth.FacebookAuthProvider();
@@ -73,5 +75,6 @@ export default {
       }
     });
     Vue.prototype.$database = database;
+    Vue.prototype.$storage = storage;
   },
 };

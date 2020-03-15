@@ -51,85 +51,42 @@
         />
       </div>
       <v-tabs
-        v-model="tab"
         class="shrink"
         centered
+        show-arrows
       >
-        <v-tab>
+        <v-tab
+          :to="`/grupy/${$route.params.groupId}/zasoby/${$route.params.resourceId}`"
+          exact
+        >
           Treść
         </v-tab>
         <v-tab
           v-if="isTeacher"
+          :to="`/grupy/${$route.params.groupId}/zasoby/${$route.params.resourceId}/edytor`"
         >
           Edytor
         </v-tab>
+        <v-tab
+          v-if="isStudent && resource.type === 'exercise'"
+          :to="`/grupy/${$route.params.groupId}/zasoby/${$route.params.resourceId}/twoje-rozwiazania`"
+        >
+          Twoje rozwiązania
+        </v-tab>
       </v-tabs>
-      <v-tabs-items
-        v-model="tab"
-        class="grow tabs-items-fill-height"
-      >
-        <v-tab-item
-          class="fill-height"
-        >
-          <v-card
-            v-if="!resource.description"
-            class="fill-height mt-2 pa-4 d-flex flex-column align-center justify-center"
-          >
-            <h1
-              class="text-center display-1"
-            >
-              Zasób nie ma opisu
-            </h1>
-          </v-card>
-          <v-card
-            v-else
-            class="fill-height mt-2 pa-4"
-            outlined
-          >
-            <vue-markdown
-              :source="resource.description"
-            />
-          </v-card>
-        </v-tab-item>
-        <v-tab-item
-          v-if="isTeacher"
-          class="fill-height"
-        >
-          <resource-editor
-            :group-id="this.$route.params.groupId"
-            :resource="resource"
-          />
-        </v-tab-item>
-      </v-tabs-items>
+      <router-view />
     </div>
   </v-container>
 </template>
 
 <script>
-  import ResourceEditor from '@/components/resource/ResourceEditor.vue';
   import _ from 'lodash';
-  import VueMarkdown from 'vue-markdown';
 
   const pluralRules = new Intl.PluralRules('pl-PL');
   const pluralPointsStrings = { many: 'punktów', one: 'punkt', few: 'punkty' };
 
   export default {
-    components: {
-      ResourceEditor,
-      VueMarkdown,
-    },
-    data: () => ({
-      tab: null,
-      // tabKeys: {
-      //   0: 'content',
-      //   1: 'editor',
-      // },
-    }),
     computed: {
-      // tabKey () {
-      // if (this.tab === null) return null;
-      // return this.tabKeys[this.tab] || null;
-      // },
       loading () {
         return !this.$store.state.teachedGroups || !this.$store.state.studiedGroups;
       },
@@ -161,9 +118,3 @@
     },
   };
 </script>
-
-<style lang="scss">
-  .tabs-items-fill-height .v-window__container {
-    height: 100%;
-  }
-</style>

@@ -27,7 +27,30 @@ const routes = [
   },
   {
     path: '/grupy/:groupId/zasoby/:resourceId',
-    component: () => import(/* webpackChunkName: "resource" */ '../views/Resource.vue'),
+    component: () => import(/* webpackChunkName: "resource" */ '../views/resource/Resource.vue'),
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "resource-viewer" */ '../views/resource/ResourceViewer.vue'),
+      },
+      {
+        path: 'edytor',
+        component: () => import(/* webpackChunkName: "resource-editor" */ '../views/resource/ResourceEditor.vue'),
+      },
+      {
+        path: 'twoje-rozwiazania',
+        component: () => import(/* webpackChunkName: "resource-your-answers" */ '../views/resource/ResourceYourAnswers.vue'),
+        children: [
+          {
+            path: ':answerId',
+          },
+        ],
+      },
+      {
+        path: '*',
+        redirect: (to) => `/grupy/${to.params.groupId}/zasoby/${to.params.resourceId}`,
+      },
+    ],
   },
   {
     path: '*',

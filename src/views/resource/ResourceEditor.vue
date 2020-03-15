@@ -1,6 +1,19 @@
 <template>
+  <v-row
+    v-if="!resource"
+    align="center"
+    justify="center"
+    class="fill-height pa-8"
+  >
+    <v-col cols="auto">
+      <h1 class="text-center display-1">
+        Wybrany zasób nie istnieje lub nie masz do niego dostępu nauczycielskiego
+      </h1>
+    </v-col>
+  </v-row>
   <div
-    class="grow fill-height d-flex flex-column fill-width"
+    v-else
+    class="fill-height d-flex flex-column fill-width"
   >
     <v-row
       v-if="$vuetify.breakpoint.smAndUp"
@@ -131,21 +144,12 @@
 </template>
 
 <script>
+  import _ from 'lodash';
   import VueMarkdown from 'vue-markdown';
 
   export default {
     components: {
       VueMarkdown,
-    },
-    props: {
-      groupId: {
-        type: String,
-        required: true,
-      },
-      resource: {
-        type: Object,
-        required: true,
-      },
     },
     data: () => ({
       name: '',
@@ -163,7 +167,16 @@
       ],
     }),
     computed: {
+      resource () {
+        if (!this.$store.state.teachedGroups || !this.$store.state.studiedGroups) return null;
+        const group = this.$store.state.teachedGroups.find((element) => element.id === this.$route.params.groupId);
+        if (!group || !group.topics) return null;
+        const groupResources = _.flatMap(group.topics, (topic) => topic.resources || []);
+        const resource = groupResources.find((element) => element.id === this.$route.params.resourceId);
+        return resource || null;
+      },
       dataChanged () {
+        if (!this.resource) return false;
         return this.resource.name !== this.name ||
           this.resource.description !== this.description ||
           (this.resource.type === 'exercise' && this.resource.maxPoints !== parseInt(this.maxPoints, 10));
@@ -221,8 +234,8 @@
         if (this.saveDisabled) return;
         try {
           await this.$database
-            .collection('groups').doc(this.groupId)
-            .collection('resources').doc(this.resource.id)
+            .collection('groups').doc(this.$route.params.groupId)
+            .collection('resources').doc(this.$route.params.resourceId)
             .update({
               description: this.description,
               name: this.name.trim(),
