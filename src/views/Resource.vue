@@ -15,7 +15,7 @@
       </v-col>
     </v-row>
     <v-row
-      v-else-if="!resourceDoc"
+      v-else-if="!resource"
       align="center"
       justify="center"
       class="fill-height pa-8"
@@ -39,7 +39,7 @@
       >
         <h1
           class="display-1"
-          v-text="resourceDoc.name"
+          v-text="resource.name"
         />
         <h1
           v-if="maxPointsString"
@@ -65,7 +65,7 @@
       >
         <v-tab-item class="fill-height">
           <v-card
-            v-if="!resourceDoc.description"
+            v-if="!resource.description"
             class="fill-height mt-2 pa-4 d-flex flex-column align-center justify-center"
           >
             <h1
@@ -80,7 +80,7 @@
             outlined
           >
             <vue-markdown
-              :source="resourceDoc.description"
+              :source="resource.description"
             />
           </v-card>
         </v-tab-item>
@@ -90,6 +90,7 @@
 </template>
 
 <script>
+  import _ from 'lodash';
   import VueMarkdown from 'vue-markdown';
 
   const pluralRules = new Intl.PluralRules('pl-PL');
@@ -100,33 +101,35 @@
       VueMarkdown,
     },
     data: () => ({
-      resourceDoc: null,
-      loading: true,
       tab: null,
     }),
     computed: {
-      maxPointsString () {
-        if (!this.resourceDoc || !this.resourceDoc.maxPoints || this.resourceDoc.type !== 'exercise') return null;
-        return `${this.resourceDoc.maxPoints} ${pluralPointsStrings[pluralRules.select(this.resourceDoc.maxPoints)]}`;
+      loading () {
+        return !this.$store.state.teachedGroups || !this.$store.state.studiedGroups;
       },
-    },
-    watch: {
-      '$route.params': {
-        async handler (value) {
-          this.loading = true;
-          try {
-            await this.$bind('resourceDoc', this.$database
-              .collection('groups').doc(this.$route.params.groupId)
-              .collection('resources').doc(this.$route.params.resourceId));
-          } catch (error) {
-            if (error.code !== 'permission-denied') {
-              this.$toast.error('Podczas wczytywania zasobu wystąpił nieoczekiwany błąd');
-              console.error(error);
-            }
-          }
-          this.loading = false;
-        },
-        immediate: true,
+      isTeacher () {
+        if (!this.$store.state.teachedGroups) return false;
+        const teachedGroup = this.$store.state.teachedGroups.find((group) => group.id === this.$route.params.groupId);
+        return !!teachedGroup;
+      },
+      isStudent () {
+        if (!this.$store.state.studiedGroups) return false;
+        const studiedGroup = this.$store.state.studiedGroups.find((group) => group.id === this.$route.params.groupId);
+        return !!studiedGroup;
+      },
+      resource () {
+        if (!this.$store.state.teachedGroups || !this.$store.state.studiedGroups) return null;
+        const teachedGroup = this.$store.state.teachedGroups.find((group) => group.id === this.$route.params.groupId);
+        const studiedGroup = this.$store.state.studiedGroups.find((group) => group.id === this.$route.params.groupId);
+        const group = teachedGroup || studiedGroup || null;
+        if (!group || !group.topics) return null;
+        const groupResources = _.flatMap(group.topics, (topic) => topic.resources || []);
+        const resource = groupResources.find((element) => element.id === this.$route.params.resourceId);
+        return resource || null;
+      },
+      maxPointsString () {
+        if (!this.resource || !this.resource.maxPoints || this.resource.type !== 'exercise') return null;
+        return `${this.resource.maxPoints} ${pluralPointsStrings[pluralRules.select(this.resource.maxPoints)]}`;
       },
     },
   };
