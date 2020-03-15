@@ -66,7 +66,7 @@
             Dołącz plik
           </v-btn>
           <v-btn
-            class="grow ml-4"
+            class="grow ml-2"
             color="secondary"
             :disabled="emptyLinkAttachments"
             outlined

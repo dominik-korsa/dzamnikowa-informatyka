@@ -47,6 +47,15 @@ const routes = [
         ],
       },
       {
+        path: 'ocenianie',
+        component: () => import(/* webpackChunkName: "resource-grading" */ '../views/resource/ResourceGrading.vue'),
+        children: [
+          {
+            path: ':answerId',
+          },
+        ],
+      },
+      {
         path: '*',
         redirect: (to) => `/grupy/${to.params.groupId}/zasoby/${to.params.resourceId}`,
       },

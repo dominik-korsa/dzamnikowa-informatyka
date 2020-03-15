@@ -73,6 +73,12 @@
         >
           Twoje rozwiązania
         </v-tab>
+        <v-tab
+          v-if="isTeacher && resource.type === 'exercise'"
+          :to="`/grupy/${$route.params.groupId}/zasoby/${$route.params.resourceId}/ocenianie`"
+        >
+          Ocenianie
+        </v-tab>
       </v-tabs>
       <router-view />
     </div>

@@ -45,6 +45,8 @@
 </template>
 
 <script>
+  import * as _ from 'lodash';
+
   export default {
     props: {
       vertical: {
@@ -66,17 +68,24 @@
     },
     computed: {
       answerItems () {
-        return this.answers.map((answer) => ({
-          id: answer.id,
-          sendDateString: answer.sendDate ? answer.sendDate.toDate().toLocaleString('pl-PL', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-          }) : '-',
-          late: false,
-        }));
+        return _.orderBy(
+          this.answers.map(
+            (answer) => ({
+              id: answer.id,
+              sendDate: answer.sendDate,
+              sendDateString: answer.sendDate ? answer.sendDate.toDate().toLocaleString('pl-PL', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              }) : '-',
+              late: false,
+            }),
+          ),
+          [(e) => (e.sendDate ? e.sendDate.toDate().getTime() : null)],
+          ['desc'],
+        );
       },
     },
     methods: {
