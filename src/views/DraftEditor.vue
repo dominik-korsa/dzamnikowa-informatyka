@@ -204,11 +204,11 @@
       publishDialogVisible: false,
       selectedPublishTopic: null,
       nameRules: [
-        (v) => !!v || 'Nazwa nie może być pusta',
+        (v) => (v !== null && v.trim() !== '') || 'Nazwa nie może być pusta',
       ],
       maxPointsRules: [
         (v) => v !== null || 'Liczba punktów jest wymagana',
-        (v) => parseFloat(v) >= 0 || 'Liczba punktów musi być liczbą całkowitą',
+        (v) => parseFloat(v) % 1 === 0 || 'Liczba punktów musi być liczbą całkowitą',
         (v) => parseInt(v, 10) >= 0 || 'Liczba punktów nie może być liczbą ujemną',
       ],
     }),
@@ -222,7 +222,13 @@
         }));
       },
       publishDisabled () {
-        return !this.name || (this.draftDoc.type === 'exercise' && (parseInt(this.maxPoints, 10) === null || parseInt(this.maxPoints, 10) < 0 || parseFloat(this.maxPoints) % 1 !== 0));
+        return this.name === null ||
+          this.name.trim() === '' ||
+          (this.draftDoc.type === 'exercise' && (
+            parseInt(this.maxPoints, 10) === null ||
+            parseInt(this.maxPoints, 10) < 0 ||
+            parseFloat(this.maxPoints) % 1 !== 0)
+          );
       },
     },
     watch: {

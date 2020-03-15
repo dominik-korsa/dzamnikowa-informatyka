@@ -58,12 +58,19 @@
         <v-tab>
           Treść
         </v-tab>
+        <v-tab
+          v-if="isTeacher"
+        >
+          Edytor
+        </v-tab>
       </v-tabs>
       <v-tabs-items
         v-model="tab"
         class="grow tabs-items-fill-height"
       >
-        <v-tab-item class="fill-height">
+        <v-tab-item
+          class="fill-height"
+        >
           <v-card
             v-if="!resource.description"
             class="fill-height mt-2 pa-4 d-flex flex-column align-center justify-center"
@@ -84,12 +91,22 @@
             />
           </v-card>
         </v-tab-item>
+        <v-tab-item
+          v-if="isTeacher"
+          class="fill-height"
+        >
+          <resource-editor
+            :group-id="this.$route.params.groupId"
+            :resource="resource"
+          />
+        </v-tab-item>
       </v-tabs-items>
     </div>
   </v-container>
 </template>
 
 <script>
+  import ResourceEditor from '@/components/resource/ResourceEditor.vue';
   import _ from 'lodash';
   import VueMarkdown from 'vue-markdown';
 
@@ -98,16 +115,26 @@
 
   export default {
     components: {
+      ResourceEditor,
       VueMarkdown,
     },
     data: () => ({
       tab: null,
+      // tabKeys: {
+      //   0: 'content',
+      //   1: 'editor',
+      // },
     }),
     computed: {
+      // tabKey () {
+      // if (this.tab === null) return null;
+      // return this.tabKeys[this.tab] || null;
+      // },
       loading () {
         return !this.$store.state.teachedGroups || !this.$store.state.studiedGroups;
       },
       isTeacher () {
+        if (!this.$store.state.userData || this.$store.state.userData.teacherModeEnabled !== true) return false;
         if (!this.$store.state.teachedGroups) return false;
         const teachedGroup = this.$store.state.teachedGroups.find((group) => group.id === this.$route.params.groupId);
         return !!teachedGroup;
