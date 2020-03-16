@@ -35,6 +35,18 @@ service cloud.firestore {
             && request.resource.data.userId == request.auth.uid
             && get(/databases/$(database)/documents/groups/$(groupId)/resources/$(resourceId)).data.type == 'exercise';
         }
+
+        match /grades/{answerId} {
+          allow read: if (
+            request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.students
+            && get(/databases/$(database)/documents/groups/$(groupId)/resources/$(resourceId)/answers/$(answerId)).data.userId == request.auth.uid
+          ) || request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.teachers;
+          allow create: if request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.teachers
+            && exists(/databases/$(database)/documents/groups/$(groupId)/resources/$(resourceId)/answers/$(answerId))
+            && request.resource.data.edited == false;
+          allow update: if request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.teachers
+            && request.resource.data.edited == true;
+        }
       }
 
       match /drafts/{draftId} {

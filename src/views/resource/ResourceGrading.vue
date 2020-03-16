@@ -96,6 +96,7 @@
         >
           <resource-student-answer
             :group-id="$route.params.groupId"
+            :resource-id="$route.params.resourceId"
             :answer="currentAnswer"
           />
         </v-col>
@@ -141,6 +142,7 @@
         v-else
         class="grow"
         :group-id="$route.params.groupId"
+        :resource-id="$route.params.resourceId"
         :answer="currentAnswer"
       />
     </v-card>

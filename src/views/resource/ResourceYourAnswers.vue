@@ -114,6 +114,7 @@
         >
           <resource-your-answer
             :group-id="$route.params.groupId"
+            :resource-id="$route.params.resourceId"
             :answer="currentAnswer"
           />
         </v-col>
@@ -154,6 +155,7 @@
         <resource-your-answer
           v-else
           :group-id="$route.params.groupId"
+          :resource-id="$route.params.resourceId"
           :answer="currentAnswer"
         />
       </template>
