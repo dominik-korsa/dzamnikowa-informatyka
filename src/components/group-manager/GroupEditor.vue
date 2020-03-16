@@ -71,31 +71,44 @@
       Lista uczniów
     </v-subheader>
     <v-list subheader>
-      <v-list-item
-        v-for="student in studentsList"
-        :key="student.id"
+      <draggable
+        v-model="group.students"
+        :animation="200"
+        :disabled="updatingStudents"
+        handle=".drag-handle"
+        @input="updateStudents"
       >
-        <v-list-item-avatar color="secondary">
-          <v-img
-            :src="student.photoURL"
-          >
-            <template v-slot:placeholder>
-              <v-icon
-                dark
-              >
-                mdi-account
-              </v-icon>
-            </template>
-          </v-img>
-        </v-list-item-avatar>
-        <v-list-item-title>
-          {{ student.displayName }}
-          <span
-            v-if="$store.state.user && student.id === $store.state.user.uid"
-            class="font-weight-light"
-          >(Ty)</span>
-        </v-list-item-title>
-      </v-list-item>
+        <v-list-item
+          v-for="student in studentsList"
+          :key="student.id"
+        >
+          <v-list-item-avatar color="secondary">
+            <v-img
+              :src="student.photoURL"
+            >
+              <template v-slot:placeholder>
+                <v-icon
+                  dark
+                >
+                  mdi-account
+                </v-icon>
+              </template>
+            </v-img>
+          </v-list-item-avatar>
+          <v-list-item-content>
+            <v-list-item-title>
+              {{ student.displayName }}
+              <span
+                v-if="$store.state.user && student.id === $store.state.user.uid"
+                class="font-weight-light"
+              >(Ty)</span>
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-icon class="cursor-move drag-handle">
+            <v-icon>mdi-drag</v-icon>
+          </v-list-item-icon>
+        </v-list-item>
+      </draggable>
     </v-list>
     <v-subheader>
       Kody dołączania
@@ -222,6 +235,7 @@
   import JoinCodeGenerateDialog from '@/components/group-manager/JoinCodeGenerateDialog.vue';
   import JoinCodeRemoveDialog from '@/components/group-manager/JoinCodeRemoveDialog.vue';
   import JoinCodeUseListDialog from '@/components/group-manager/JoinCodeUseListDialog.vue';
+  import draggable from 'vuedraggable';
 
   export default {
     components: {
@@ -229,6 +243,7 @@
       JoinCodeEditorDialog,
       JoinCodeRemoveDialog,
       JoinCodeUseListDialog,
+      draggable,
     },
     props: {
       groupId: {
@@ -239,6 +254,7 @@
     data: () => ({
       groupName: '',
       joinCodes: [],
+      updatingStudents: false,
     }),
     computed: {
       loading () {
@@ -322,6 +338,15 @@
           this.groupName = this.group.name;
         }
       },
+      async updateStudents (studentIds) {
+        this.updatingStudents = true;
+
+        await this.$database.collection('groups').doc(this.groupId).update({
+          students: studentIds,
+        });
+
+        this.updatingStudents = false;
+      },
       showJoinCodeGeneratorDialog () {
         this.$refs.joinCodeGenerateDialog.show(this.groupId);
       },
@@ -345,3 +370,9 @@
     },
   };
 </script>
+
+<style lang="scss">
+  .cursor-move {
+    cursor: move;
+  }
+</style>
