@@ -69,9 +69,9 @@ export default {
           userUid: user.uid,
         });
       } else {
-        store.dispatch('unbindUserData');
         store.dispatch('unbindTeachedGroups');
         store.dispatch('unbindStudiedGroups');
+        store.dispatch('unbindUserData');
       }
     });
     Vue.prototype.$database = database;

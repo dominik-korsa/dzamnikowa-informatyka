@@ -428,6 +428,12 @@
         immediate: true,
       },
     },
+    destroyed () {
+      Object.entries(this.drafts).forEach((id, draft) => {
+        draft.unsubscribe();
+        this.$set(this.drafts, id, undefined);
+      });
+    },
     methods: {
       isGroupValid (group) {
         if (group.topics && group.topics.length > 0) {
