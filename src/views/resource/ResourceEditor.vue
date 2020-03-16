@@ -233,14 +233,19 @@
       async saveChanges () {
         if (this.saveDisabled) return;
         try {
+          const data = {
+            description: this.description,
+            name: this.name.trim(),
+          };
+
+          if (this.resource.type === 'exercise') {
+            data.maxPoints = parseInt(this.maxPoints, 10);
+          }
+
           await this.$database
             .collection('groups').doc(this.$route.params.groupId)
             .collection('resources').doc(this.$route.params.resourceId)
-            .update({
-              description: this.description,
-              name: this.name.trim(),
-              maxPoints: this.resource.type === 'exercise' ? parseInt(this.maxPoints, 10) : undefined,
-            });
+            .update(data);
           this.saveLoading = false;
           this.$toast('Zapisano zmiany');
         } catch (error) {

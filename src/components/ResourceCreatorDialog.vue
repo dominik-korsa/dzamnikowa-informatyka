@@ -54,11 +54,16 @@
 
         try {
           const groupReference = this.$database.collection('groups').doc(this.groupId);
-          const newDraftReference = await groupReference.collection('drafts').add({
+          const data = {
             name: this.resourceName.trim(),
             type: this.resourceType,
-            maxPoints: this.resourceType === 'exercise' ? 100 : undefined,
-          });
+          };
+
+          if (this.resourceType === 'exercise') {
+            data.maxPoints = 100;
+          }
+
+          const newDraftReference = await groupReference.collection('drafts').add(data);
           this.$router.push(`/grupy/${this.groupId}/wersje-robocze/${newDraftReference.id}`);
           this.visible = false;
         } catch (error) {

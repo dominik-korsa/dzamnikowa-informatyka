@@ -284,14 +284,19 @@
       },
       async saveChanges () {
         try {
+          const data = {
+            description: this.description,
+            name: this.name.trim() || this.draftDoc.name,
+          };
+
+          if (this.draftDoc.type === 'exercise') {
+            data.maxPoints = parseInt(this.maxPoints, 10);
+          }
+
           await this.$database
             .collection('groups').doc(this.$route.params.groupId)
             .collection('drafts').doc(this.$route.params.draftId)
-            .update({
-              description: this.description,
-              name: this.name.trim() || this.draftDoc.name,
-              maxPoints: this.draftDoc.type === 'exercise' ? parseInt(this.maxPoints, 10) : undefined,
-            });
+            .update(data);
           this.saveLoading = false;
         } catch (error) {
           this.$toast.error('Nie udało się zapisać zmian');
