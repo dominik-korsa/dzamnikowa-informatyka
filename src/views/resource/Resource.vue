@@ -28,7 +28,7 @@
     </v-row>
     <div
       v-else
-      class="grow fill-height d-flex flex-column"
+      class="grow fill-height d-flex flex-column fill-width"
     >
       <div
         :class="{
