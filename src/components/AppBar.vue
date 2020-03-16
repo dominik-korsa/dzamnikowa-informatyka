@@ -48,25 +48,18 @@
           </v-list-item-icon>
           <v-list-item-title>Zmień wyświetlaną nazwę</v-list-item-title>
         </v-list-item>
-        <v-list-item @click="teacherModeEnabled = !teacherModeEnabled">
+        <v-list-item
+          v-if="teacherModeEnabled"
+          @click="disableTeacherMode"
+        >
           <v-list-item-icon>
             <v-icon>
               mdi-teach
             </v-icon>
           </v-list-item-icon>
-
-          <v-list-item-content>
-            <v-list-item-title>
-              Tryb nauczyciela
-            </v-list-item-title>
-          </v-list-item-content>
-
-          <v-list-item-action>
-            <v-switch
-              v-model="teacherModeEnabled"
-              readonly
-            />
-          </v-list-item-action>
+          <v-list-item-title>
+            Wyłącz tryb nauczyciela
+          </v-list-item-title>`
         </v-list-item>
         <v-list-item
           v-if="!addedProviders.includes('google.com')"
@@ -130,8 +123,12 @@
           <v-list-item-title>Wyloguj się</v-list-item-title>
         </v-list-item>
         <v-list-item
+          v-long-press="1000"
           :href="privacyPolicyConfig.link"
           target="_blank"
+          @click="privacyPolicyClick"
+          @long-press-start="enableTeacherModeStart"
+          @long-press-stop="enableTeacherModeStop"
         >
           <v-list-item-icon>
             <v-icon>mdi-lock</v-icon>
@@ -152,11 +149,15 @@
   import ChangeDisplayNameDialog from '@/components/ChangeDisplayNameDialog.vue';
   import FacebookUnlinkDialog from '@/components/FacebookUnlinkDialog.vue';
   import privacyPolicyConfig from '@/privacy-policy-config';
+  import LongPress from 'vue-directive-long-press';
 
   export default {
     components: {
       ChangeDisplayNameDialog,
       FacebookUnlinkDialog,
+    },
+    directives: {
+      LongPress,
     },
     data: () => ({
       changeDisplayNameDialogVisible: false,
@@ -164,6 +165,7 @@
       googleLoading: false,
       facebookLoading: false,
       privacyPolicyConfig,
+      teacherModeLongPress: false,
     }),
     computed: {
       addedProviders () {
@@ -213,6 +215,34 @@
       },
       signOut () {
         this.$auth.signOut();
+      },
+      enableTeacherModeStart () {
+        this.teacherModeLongPress = true;
+        if (!this.teacherModeEnabled) {
+          this.$toast('Włączono tryb nauczyciela');
+        } else {
+          this.$toast('Tryb nauczyciela jest już włączony');
+        }
+      },
+      privacyPolicyClick (event) {
+        if (this.teacherModeLongPress) {
+          event.preventDefault();
+        }
+      },
+      enableTeacherModeStop () {
+        if (!this.teacherModeEnabled) {
+          this.teacherModeEnabled = true;
+        }
+
+        setTimeout(() => {
+          this.teacherModeLongPress = false;
+        }, 100);
+      },
+      disableTeacherMode () {
+        if (this.teacherModeEnabled) {
+          this.teacherModeEnabled = false;
+          this.$toast('Wyłączono tryb nauczyciela');
+        }
       },
     },
   };
