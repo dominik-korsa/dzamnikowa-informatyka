@@ -51,11 +51,6 @@
   const storage = firebase.storage();
   const storageRef = storage.ref();
 
-  console.log({
-    storage,
-    storageRef,
-  });
-
   export default {
     props: {
       attachments: {
