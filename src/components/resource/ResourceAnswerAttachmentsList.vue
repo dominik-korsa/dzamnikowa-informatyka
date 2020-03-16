@@ -62,7 +62,6 @@
       attachmentsList: {
         get () {
           return Promise.all(this.attachments.map(async (attachment, index) => {
-            console.log(attachment);
             if (attachment.type === 'link') {
               return {
                 key: index,
