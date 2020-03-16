@@ -70,23 +70,9 @@
         type: Object,
         required: true,
       },
-    },
-    data: () => ({
-      grade: null,
-    }),
-    watch: {
-      'answer.id': {
-        handler (value, oldValue) {
-          if (!value || value === oldValue) return;
-          const gradeReference = this.$database
-            .collection('groups').doc(this.groupId)
-            .collection('resources').doc(this.resourceId)
-            .collection('grades')
-            .doc(value);
-
-          this.$bind('grade', gradeReference);
-        },
-        immediate: true,
+      grade: {
+        type: Object,
+        default: null,
       },
     },
   };

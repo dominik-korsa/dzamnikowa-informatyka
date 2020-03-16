@@ -39,13 +39,15 @@ service cloud.firestore {
         match /grades/{answerId} {
           allow read: if (
             request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.students
-            && get(/databases/$(database)/documents/groups/$(groupId)/resources/$(resourceId)/answers/$(answerId)).data.userId == request.auth.uid
+            && resource.data.userId == request.auth.uid
           ) || request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.teachers;
           allow create: if request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.teachers
             && exists(/databases/$(database)/documents/groups/$(groupId)/resources/$(resourceId)/answers/$(answerId))
-            && request.resource.data.edited == false;
+            && request.resource.data.edited == false
+            && get(/databases/$(database)/documents/groups/$(groupId)/resources/$(resourceId)/answers/$(answerId)).data.userId == request.resource.data.userId;
           allow update: if request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.teachers
-            && request.resource.data.edited == true;
+            && request.resource.data.edited == true
+            && request.resource.data.userId == resource.data.userId;
         }
       }
 

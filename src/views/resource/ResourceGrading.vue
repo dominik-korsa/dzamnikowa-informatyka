@@ -98,6 +98,7 @@
             :group-id="$route.params.groupId"
             :resource-id="$route.params.resourceId"
             :answer="currentAnswer"
+            :grade="currentGrade"
           />
         </v-col>
       </v-row>
@@ -144,6 +145,7 @@
         :group-id="$route.params.groupId"
         :resource-id="$route.params.resourceId"
         :answer="currentAnswer"
+        :grade="currentGrade"
       />
     </v-card>
     <resource-answer-creator-dialog ref="resourceAnswerCreatorDialog" />
@@ -163,11 +165,12 @@
     },
     data: () => ({
       answers: null,
+      grades: null,
       resource: null,
     }),
     computed: {
       loading () {
-        return !this.answers || !this.resource;
+        return !this.answers || !this.resource || !this.grades;
       },
       isExercise () {
         if (!this.resource) return false;
@@ -175,6 +178,9 @@
       },
       currentAnswer () {
         return this.answers.find((answer) => answer.id === this.$route.params.answerId) || null;
+      },
+      currentGrade () {
+        return this.grades.find((grade) => grade.id === this.$route.params.answerId) || null;
       },
     },
     watch: {
@@ -202,6 +208,10 @@
           .collection('groups').doc(groupId)
           .collection('resources').doc(resourceId)
           .collection('answers'));
+        this.$bind('grades', this.$database
+          .collection('groups').doc(groupId)
+          .collection('resources').doc(resourceId)
+          .collection('grades'));
       },
     },
   };

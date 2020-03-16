@@ -135,9 +135,12 @@
         type: Object,
         required: true,
       },
+      grade: {
+        type: Object,
+        default: null,
+      },
     },
     data: () => ({
-      grade: null,
       gradeEditMode: false,
       gradePoints: null,
       gradeComment: '',
@@ -167,14 +170,6 @@
           this.gradeEditMode = false;
           this.gradePoints = null;
           this.gradeComment = '';
-
-          const gradeReference = this.$database
-            .collection('groups').doc(this.groupId)
-            .collection('resources').doc(this.resourceId)
-            .collection('grades')
-            .doc(value);
-
-          this.$bind('grade', gradeReference);
         },
         immediate: true,
       },
@@ -203,12 +198,14 @@
           if (this.grade) {
             await gradeReference.update({
               edited: true,
+              userId: this.answer.userId,
               points: parseInt(this.gradePoints, 10),
               comment: this.gradeComment ? this.gradeComment.trim() : null,
             });
           } else {
             await gradeReference.set({
               edited: false,
+              userId: this.answer.userId,
               points: parseInt(this.gradePoints, 10),
               comment: this.gradeComment ? this.gradeComment.trim() : null,
             });

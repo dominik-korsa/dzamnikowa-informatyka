@@ -116,6 +116,7 @@
             :group-id="$route.params.groupId"
             :resource-id="$route.params.resourceId"
             :answer="currentAnswer"
+            :grade="currentGrade"
           />
         </v-col>
       </v-row>
@@ -157,6 +158,7 @@
           :group-id="$route.params.groupId"
           :resource-id="$route.params.resourceId"
           :answer="currentAnswer"
+          :grade="currentGrade"
         />
       </template>
     </v-card>
@@ -177,6 +179,7 @@
     },
     data: () => ({
       answers: null,
+      grades: null,
       resource: null,
     }),
     computed: {
@@ -189,6 +192,9 @@
       },
       currentAnswer () {
         return this.answers.find((answer) => answer.id === this.$route.params.answerId) || null;
+      },
+      currentGrade () {
+        return this.grades.find((grade) => grade.id === this.$route.params.answerId) || null;
       },
     },
     watch: {
@@ -216,6 +222,11 @@
           .collection('groups').doc(groupId)
           .collection('resources').doc(resourceId)
           .collection('answers')
+          .where('userId', '==', this.$store.state.user.uid));
+        this.$bind('grades', this.$database
+          .collection('groups').doc(groupId)
+          .collection('resources').doc(resourceId)
+          .collection('grades')
           .where('userId', '==', this.$store.state.user.uid));
       },
       createNewAnswer () {
