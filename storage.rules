@@ -4,7 +4,7 @@ service firebase.storage {
       allow read, write: if false;
 
       match /answers/{groupId}/{resourceId}/{answerId}/{allPaths=**} {
-        allow create, get: if auth.user !== null;
+        allow create, get: if auth.user != null;
       }
     }
   }
