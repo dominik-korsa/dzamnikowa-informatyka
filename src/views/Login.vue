@@ -2,7 +2,7 @@
   <v-app>
     <v-content>
       <v-container
-        class="fill-height primary"
+        class="fill-height primary darken-1"
         fluid
       >
         <v-row
@@ -14,10 +14,27 @@
           >
             <v-card
               :class="{
-                'pa-6': $vuetify.breakpoint.smAndUp,
+                'px-6 pb-6': $vuetify.breakpoint.smAndUp,
               }"
+              class="pt-1"
               raised
             >
+              <v-img
+                v-if="$vuetify.breakpoint.smAndUp"
+                src="@/assets/logo.png"
+                max-height="128"
+                max-width="128"
+                class="card-logo elevation-4"
+              />
+
+              <v-img
+                v-else
+                src="@/assets/logo.png"
+                max-height="96"
+                max-width="96"
+                class="card-logo card-logo--small elevation-4"
+              />
+
               <v-card-title
                 class="justify-center text-center"
                 :class="{
@@ -124,3 +141,17 @@
     },
   };
 </script>
+
+<style lang="scss">
+  .card-logo {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: -68px;
+    border-radius: 64px !important;
+
+    &--small {
+      margin-top: -50px;
+      border-radius: 48px !important;
+    }
+  }
+</style>

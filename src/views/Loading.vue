@@ -2,7 +2,7 @@
   <v-app>
     <v-content>
       <v-container
-        class="fill-height primary"
+        class="fill-height primary darken-1"
         fluid
       >
         <v-row
