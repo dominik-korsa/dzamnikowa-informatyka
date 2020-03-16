@@ -27,14 +27,20 @@
     outlined
   >
     <vue-markdown
+      class="markdown-output"
       :source="resource.description"
+      @rendered="updateSyntax"
     />
   </v-card>
 </template>
 
 <script>
   import _ from 'lodash';
+  import Prism from 'prismjs';
   import VueMarkdown from 'vue-markdown';
+
+  import 'prismjs/components/prism-c';
+  import 'prismjs/components/prism-cpp';
 
   export default {
     components: {
@@ -52,5 +58,28 @@
         return resource || null;
       },
     },
+    methods: {
+      updateSyntax () {
+        this.$nextTick(() => {
+          Prism.highlightAll();
+        });
+      },
+    },
   };
 </script>
+
+<style lang="scss">
+  .markdown-output {
+    code::before, code::after {
+      content: none;
+    }
+
+    code:not([class*="language-"]) {
+      padding: 2px 6px;
+      margin: 0 2px;
+      background-color: rgb(20, 20, 20);
+      color: white;
+      font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    }
+  }
+</style>

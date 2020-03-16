@@ -97,7 +97,9 @@
             outlined
           >
             <vue-markdown
+              class="markdown-output"
               :source="description"
+              @rendered="updateSyntax"
             />
           </v-card>
         </v-col>
@@ -185,8 +187,12 @@
 <script>
   import firebase from 'firebase/app';
   import { debounce } from 'lodash';
+  import Prism from 'prismjs';
   import VueMarkdown from 'vue-markdown';
   import 'firebase/firestore';
+
+  import 'prismjs/components/prism-c';
+  import 'prismjs/components/prism-cpp';
 
   export default {
     components: {
@@ -269,6 +275,11 @@
       });
     },
     methods: {
+      updateSyntax () {
+        this.$nextTick(() => {
+          Prism.highlightAll();
+        });
+      },
       input () {
         this.saveLoading = true;
         this.saveChangesDebounced();
@@ -368,5 +379,19 @@
 
   .fill-width {
     width: 100%;
+  }
+
+  .markdown-output {
+    code::before, code::after {
+      content: none;
+    }
+
+    code:not([class*="language-"]) {
+      padding: 2px 6px;
+      margin: 0 2px;
+      background-color: rgb(20, 20, 20);
+      color: white;
+      font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    }
   }
 </style>
