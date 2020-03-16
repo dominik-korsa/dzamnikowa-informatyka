@@ -59,7 +59,7 @@
       <v-divider />
       <v-row
         v-if="$vuetify.breakpoint.smAndUp"
-        class="grow"
+        class="grow flex-nowrap"
         no-gutters
       >
         <v-col
@@ -110,7 +110,7 @@
         </v-col>
         <v-col
           v-else
-          class="grow"
+          class="grow overflow-x-hidden"
         >
           <resource-your-answer
             :group-id="$route.params.groupId"
@@ -235,3 +235,9 @@
     },
   };
 </script>
+
+<style lang="scss">
+  .fill-width {
+    width: 100%;
+  }
+</style>
