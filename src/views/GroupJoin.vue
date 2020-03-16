@@ -40,7 +40,7 @@
 
 <script>
   import firebase from 'firebase/app';
-  import 'firebase/firebase-functions';
+  import 'firebase/functions';
   import { mask } from 'vue-the-mask';
 
   export default {

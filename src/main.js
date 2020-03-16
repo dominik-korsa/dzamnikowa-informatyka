@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import AsyncComputed from 'vue-async-computed';
 import { firestorePlugin } from 'vuefire';
 import App from './App.vue';
 import firebasePlugin from './plugins/firebase';
@@ -8,6 +9,7 @@ import store from './store';
 
 Vue.config.productionTip = false;
 
+Vue.use(AsyncComputed);
 Vue.use(firebasePlugin);
 Vue.use(firestorePlugin);
 

@@ -70,7 +70,7 @@
 
 <script>
   import firebase from 'firebase/app';
-  import 'firebase/firebase-functions';
+  import 'firebase/functions';
 
   export default {
     data: () => ({
