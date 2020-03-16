@@ -50,6 +50,7 @@
         >
           <resource-group-answers-list
             :answers="answers"
+            :grades="grades"
             :group-id="$route.params.groupId"
             :resource-id="$route.params.resourceId"
           />
@@ -111,6 +112,7 @@
       <resource-group-answers-list
         vertical
         :answers="answers"
+        :grades="grades"
         :group-id="$route.params.groupId"
         :resource-id="$route.params.resourceId"
       />

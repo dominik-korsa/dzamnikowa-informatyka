@@ -67,6 +67,7 @@
         >
           <resource-your-answers-list
             :answers="answers"
+            :grades="grades"
             :group-id="$route.params.groupId"
             :resource-id="$route.params.resourceId"
             @click:create-new-answer="createNewAnswer"
@@ -124,6 +125,7 @@
         <resource-your-answers-list
           vertical
           :answers="answers"
+          :grades="grades"
           :group-id="$route.params.groupId"
           :resource-id="$route.params.resourceId"
           @click:create-new-answer="createNewAnswer"

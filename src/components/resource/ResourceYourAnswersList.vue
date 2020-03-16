@@ -31,6 +31,14 @@
     >
       <v-list-item-content>
         <v-list-item-title v-text="answer.sendDateString" />
+        <v-list-item-subtitle v-if="answer.pointsString === null">
+          Nie ocenione
+        </v-list-item-subtitle>
+        <v-list-item-subtitle
+          v-else
+          class="secondary--text"
+          v-text="answer.pointsString"
+        />
       </v-list-item-content>
       <v-chip
         v-if="answer.late"
@@ -46,6 +54,9 @@
 
 <script>
   import * as _ from 'lodash';
+
+  const pluralRules = new Intl.PluralRules('pl-PL');
+  const pluralPointsStrings = { many: 'punktów', one: 'punkt', few: 'punkty' };
 
   export default {
     props: {
@@ -65,23 +76,31 @@
         type: Array,
         required: true,
       },
+      grades: {
+        type: Array,
+        required: true,
+      },
     },
     computed: {
       answerItems () {
         return _.orderBy(
           this.answers.map(
-            (answer) => ({
-              id: answer.id,
-              sendDate: answer.sendDate,
-              sendDateString: answer.sendDate ? answer.sendDate.toDate().toLocaleString('pl-PL', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              }) : '-',
-              late: false,
-            }),
+            (answer) => {
+              const grade = this.grades.find((e) => e.id === answer.id);
+              return ({
+                id: answer.id,
+                sendDate: answer.sendDate,
+                sendDateString: answer.sendDate ? answer.sendDate.toDate().toLocaleString('pl-PL', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                }) : '-',
+                late: false,
+                pointsString: grade ? `${grade.points} ${pluralPointsStrings[pluralRules.select(grade.points)]}` : null,
+              });
+            },
           ),
           [(e) => (e.sendDate ? e.sendDate.toDate().getTime() : null)],
           ['desc'],
