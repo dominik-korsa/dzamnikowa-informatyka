@@ -44,30 +44,40 @@ export default {
     auth.onAuthStateChanged(async (user) => {
       store.dispatch('updateUser', { user });
       if (user) {
-        const userDataDocReference = database.collection('user-data').doc(user.uid);
-        if (!(await userDataDocReference.get()).exists) {
-          userDataDocReference.set({
-            displayName: user.displayName,
-            photoURL: user.photoURL,
-            privacyPolicyAcceptedVersion: privacyPolicyConfig.version,
+        try {
+          const userDataDocReference = database.collection('user-data').doc(user.uid);
+          if (!(await userDataDocReference.get()).exists) {
+            userDataDocReference.set({
+              displayName: user.displayName,
+              photoURL: user.photoURL,
+              privacyPolicyAcceptedVersion: privacyPolicyConfig.version,
+            });
+          } else {
+            userDataDocReference.update({
+              photoURL: user.photoURL,
+            });
+          }
+          store.dispatch('bindUserData', {
+            database,
+            userUid: user.uid,
           });
-        } else {
-          userDataDocReference.update({
-            photoURL: user.photoURL,
+          store.dispatch('bindTeachedGroups', {
+            database,
+            userUid: user.uid,
           });
+          store.dispatch('bindStudiedGroups', {
+            database,
+            userUid: user.uid,
+          });
+        } catch (error) {
+          this.$sendError('login/update-user', {
+            error: {
+              name: error.name || null,
+              message: error.message || null,
+            },
+          });
+          console.error(error);
         }
-        store.dispatch('bindUserData', {
-          database,
-          userUid: user.uid,
-        });
-        store.dispatch('bindTeachedGroups', {
-          database,
-          userUid: user.uid,
-        });
-        store.dispatch('bindStudiedGroups', {
-          database,
-          userUid: user.uid,
-        });
       } else {
         store.dispatch('unbindTeachedGroups');
         store.dispatch('unbindStudiedGroups');
