@@ -87,7 +87,7 @@
           <v-list-item-subtitle
             v-if="answer.points !== null"
           >
-            Liczba punktów: {{ item.maxPoints }}
+            Liczba punktów: {{ answer.points }}
           </v-list-item-subtitle>
           <v-list-item-subtitle
             v-else
