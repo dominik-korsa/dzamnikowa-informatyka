@@ -142,6 +142,7 @@
               </v-list-item>
             </v-list-group>
           </template>
+          <v-divider inset />
           <div
             v-if="group.topics.length === 0"
             class="px-4 py-6 text-center"
