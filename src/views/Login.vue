@@ -111,7 +111,23 @@
         if (this.googlePopupOpenCount === 0) {
           this.googlePopupOpenCount += 1;
           try {
-            await this.$auth.signInWithGoogle();
+            try {
+              await this.$auth.signInWithGoogle();
+            } catch (error) {
+              if (error.code === 'auth/popup-closed-by-user') {
+                console.warn(error);
+                this.$sendError('login/google', {
+                  error: {
+                    name: error.name || null,
+                    message: error.message || null,
+                  },
+                  changingToPopup: true,
+                });
+                this.$auth.signInWithGoogle(true);
+              } else {
+                throw error;
+              }
+            }
           } catch (error) {
             this.$sendError('login/google', {
               error: {
@@ -130,7 +146,23 @@
         if (this.facebookPopupOpenCount === 0) {
           this.facebookPopupOpenCount += 1;
           try {
-            await this.$auth.signInWithFacebook();
+            try {
+              await this.$auth.showSignInWithFacebook();
+            } catch (error) {
+              if (error.code === 'auth/popup-closed-by-user') {
+                console.warn(error);
+                this.$sendError('login/google', {
+                  error: {
+                    name: error.name || null,
+                    message: error.message || null,
+                  },
+                  changingToPopup: true,
+                });
+                this.$auth.showSignInWithFacebook(true);
+              } else {
+                throw error;
+              }
+            }
           } catch (error) {
             this.$sendError('login/google', {
               error: {

@@ -25,8 +25,12 @@ export default {
     const googleProvider = new Firebase.auth.GoogleAuthProvider();
     const facebookProvider = new Firebase.auth.FacebookAuthProvider();
     Vue.prototype.$auth = {
-      signInWithGoogle: () => auth.signInWithPopup(googleProvider),
-      signInWithFacebook: () => auth.signInWithPopup(facebookProvider),
+      signInWithGoogle: (redirect = false) => (redirect
+        ? auth.signInWithRedirect(googleProvider)
+        : auth.signInWithPopup(googleProvider)),
+      signInWithFacebook: (redirect = false) => (redirect
+        ? auth.signInWithRedirect(facebookProvider)
+        : auth.signInWithPopup(facebookProvider)),
       linkGoogle: async () => {
         await auth.currentUser.linkWithPopup(googleProvider);
         store.dispatch('updateUser', { user: auth.currentUser });
