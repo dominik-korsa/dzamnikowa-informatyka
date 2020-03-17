@@ -93,6 +93,7 @@ export default {
     Vue.prototype.$sendError = (location, data) => database.collection('error-reports').add({
       location,
       data,
+      date: Firebase.firestore.FieldValue.serverTimestamp,
     });
   },
 };
