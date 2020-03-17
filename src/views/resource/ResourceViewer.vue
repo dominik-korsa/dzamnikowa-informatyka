@@ -74,6 +74,10 @@
   }
 
   .markdown-output {
+    img {
+      max-width: 100%;
+    }
+
     code::before, code::after {
       content: none;
     }
