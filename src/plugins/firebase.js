@@ -76,5 +76,9 @@ export default {
     });
     Vue.prototype.$database = database;
     Vue.prototype.$storage = storage;
+    Vue.prototype.$sendError = (location, data) => database.collection('error-reports').add({
+      location,
+      data,
+    });
   },
 };

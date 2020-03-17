@@ -113,6 +113,12 @@
           try {
             await this.$auth.signInWithGoogle();
           } catch (error) {
+            this.$sendError('login/google', {
+              error: {
+                name: error.name || null,
+                message: error.message || null,
+              },
+            });
             this.showError(error);
             console.error(error);
           }
@@ -126,6 +132,12 @@
           try {
             await this.$auth.signInWithFacebook();
           } catch (error) {
+            this.$sendError('login/google', {
+              error: {
+                name: error.name || null,
+                message: error.message || null,
+              },
+            });
             this.showError(error);
             console.error(error);
           }
