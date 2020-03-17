@@ -69,6 +69,10 @@
 </script>
 
 <style lang="scss">
+  .fill-width {
+    width: 100%;
+  }
+
   .markdown-output {
     code::before, code::after {
       content: none;

@@ -21,6 +21,8 @@ new Vue({
     store.dispatch('bindUserDataCollection', {
       database: this.$database,
     });
+    const commitSHA = process.env.VUE_APP_GITHUB_SHA;
+    console.log(`GitHub commit: ${commitSHA || 'brak informacji'}`);
   },
   render: (h) => h(App),
 }).$mount('#app');
