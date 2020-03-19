@@ -89,6 +89,10 @@
                   </v-btn>
                 </div>
               </v-card-actions>
+              <v-card-text class="text-center">
+                Logując się potwierdzasz, że akceptujesz politykę prywatności.<br>
+                Jeżeli nie masz ukończonych 16 lat zgodę musi wyrazić twój rodzic lub opiekun prawny.
+              </v-card-text>
             </v-card>
           </v-col>
         </v-row>
