@@ -45,6 +45,20 @@
               color="secondary"
               @click:append="removeAttachment(attachment.key)"
             />
+            <v-text-field
+              v-if="attachment.type === 'text'"
+              :key="attachment.key"
+              :value="attachment.filename"
+              readonly
+              outlined
+              prepend-icon="mdi-xml"
+              append-icon="mdi-close"
+              color="secondary"
+              hint="Klikij aby edytować"
+              persistent-hint
+              @click="editTextAttachment(attachment)"
+              @click:append="removeAttachment(attachment.key)"
+            />
           </template>
           <div
             v-if="attachments.length === 0"
@@ -78,6 +92,33 @@
             Dołącz link
           </v-btn>
         </v-card-actions>
+        <v-row
+          align="center"
+          no-gutters
+        >
+          <v-col>
+            <v-divider />
+          </v-col>
+          <v-col class="shrink mx-4">
+            <div>lub</div>
+          </v-col>
+          <v-col>
+            <v-divider />
+          </v-col>
+        </v-row>
+        <v-card-actions>
+          <v-btn
+            class="grow"
+            color="secondary"
+            outlined
+            @click="addTextAttachment"
+          >
+            <v-icon left>
+              mdi-xml
+            </v-icon>
+            Wklej kod
+          </v-btn>
+        </v-card-actions>
         <v-divider />
         <v-card-actions>
           <v-spacer />
@@ -93,6 +134,10 @@
         </v-card-actions>
       </template>
     </v-card>
+    <resource-attachment-creator
+      ref="resourceAttachmentCreator"
+      @save="codeAttachmentSave"
+    />
   </v-dialog>
 </template>
 
@@ -102,8 +147,12 @@
   import * as _ from 'lodash';
   import 'firebase/storage';
   import 'firebase/firestore';
+  import ResourceAttachmentCreator from './ResourceAttachmentCreator.vue';
 
   export default {
+    components: {
+      ResourceAttachmentCreator,
+    },
     data: () => ({
       attachments: [],
       visible: false,
@@ -156,6 +205,32 @@
           type: 'link',
         });
       },
+      addTextAttachment () {
+        this.$refs.resourceAttachmentCreator.show();
+      },
+      editTextAttachment ({ text, filename, key }) {
+        this.$refs.resourceAttachmentCreator.show(text, filename, key);
+      },
+      codeAttachmentSave (text, filename, key) {
+        if (key) {
+          const index = this.attachments.findIndex((attachment) => attachment.key === key);
+          if (index) {
+            this.attachments[index] = {
+              key,
+              text,
+              filename,
+              type: 'text',
+            };
+          }
+          return;
+        }
+        this.attachments.push({
+          key: Math.random(),
+          text,
+          filename,
+          type: 'text',
+        });
+      },
       removeAttachment (key) {
         this.$set(this, 'attachments', _.filter(this.attachments, (attachment) => attachment.key !== key));
       },
@@ -194,6 +269,26 @@
 
               uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, (snapshot) => {
                 this.$set(this.fileProgress, `${index}-${attachment.value.name}`, {
+                  transfered: snapshot.bytesTransferred,
+                  total: snapshot.totalBytes,
+                });
+              }, (error) => {
+                reject(error);
+              }, () => {
+                resolve({
+                  type: 'file',
+                  filePath: fileRef.fullPath,
+                });
+              });
+            } else if (attachment.type === 'text') {
+              const fileRef = answerFolderRef.child(`${index}-${attachment.filename}`);
+              const blob = new Blob([attachment.text], {
+                type: 'application/octet-stream;charset=UTF-8',
+              });
+              const uploadTask = fileRef.put(blob);
+
+              uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, (snapshot) => {
+                this.$set(this.fileProgress, `${index}-${attachment.filename}`, {
                   transfered: snapshot.bytesTransferred,
                   total: snapshot.totalBytes,
                 });
