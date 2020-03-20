@@ -233,6 +233,10 @@
 
                     <v-list-item-content>
                       <v-list-item-title v-text="resource.name" />
+                      <v-list-item-subtitle
+                        v-if="resource.type === 'material'"
+                        v-text="resource.readingTimeString"
+                      />
                     </v-list-item-content>
                   </v-list-item>
                 </draggable>
@@ -286,6 +290,10 @@
 
                   <v-list-item-content>
                     <v-list-item-title v-text="resource.name" />
+                    <v-list-item-subtitle
+                      v-if="resource.type === 'material'"
+                      v-text="resource.readingTimeString"
+                    />
                   </v-list-item-content>
                 </v-list-item>
               </v-list-group>
@@ -306,6 +314,9 @@
   import TopicSettingsDialog from '@/components/TopicSettingsDialog.vue';
   import * as _ from 'lodash';
   import draggable from 'vuedraggable';
+
+  const pluralRules = new Intl.PluralRules('pl-PL');
+  const pluralMinutesStrings = { many: 'minut', one: 'minuta', few: 'minuty' };
 
   export default {
     components: {
@@ -387,7 +398,22 @@
               }))
               .map((topic) => ({
                 ...topic,
-                resources: topic.resources.filter(this.isResourceValid),
+                resources: topic.resources.filter(this.isResourceValid).map((resource) => {
+                  const wordsPerMinute = 150;
+                  const wordsCount = resource.description ? resource.description.split(' ').length : 0;
+                  let readingTimeString;
+                  if (wordsCount === 0) {
+                    readingTimeString = 'Brak opisu';
+                  } else {
+                    const readingTime = Math.ceil(wordsCount / wordsPerMinute);
+                    readingTimeString = `Czas czytania: ${readingTime} ${pluralMinutesStrings[pluralRules.select(readingTime)]}`;
+                  }
+                  return {
+                    id: resource.id,
+                    ...resource,
+                    readingTimeString,
+                  };
+                }),
               })),
           }))
           .map((group) => {
