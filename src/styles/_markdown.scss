@@ -1,5 +1,5 @@
 img {
-  max-width: 100%;
+  max-width: min(1024px, 100%);
   margin: 32px auto 24px;
   display: block;
   box-shadow:
