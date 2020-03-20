@@ -382,20 +382,6 @@
   }
 
   .markdown-output {
-    img {
-      max-width: 100%;
-    }
-
-    code::before, code::after {
-      content: none;
-    }
-
-    code:not([class*="language-"]) {
-      padding: 2px 6px;
-      margin: 0 2px;
-      background-color: rgb(20, 20, 20);
-      color: white;
-      font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
-    }
+    @import "../styles/markdown";
   }
 </style>
