@@ -30,8 +30,13 @@
       </v-card-title>
       <v-card-text
         v-if="grade.comment"
-        v-text="grade.comment"
-      />
+      >
+        <vue-markdown
+          class="markdown-output"
+          :source="grade.comment"
+          @rendered="updateSyntax"
+        />
+      </v-card-text>
       <v-card-text v-else>
         Nie dodano komentarza
       </v-card-text>
@@ -52,10 +57,16 @@
 
 <script>
   import ResourceAnswerAttachmentsList from '@/components/resource/ResourceAnswerAttachmentsList.vue';
+  import Prism from 'prismjs';
+  import VueMarkdown from 'vue-markdown';
+
+  import 'prismjs/components/prism-c';
+  import 'prismjs/components/prism-cpp';
 
   export default {
     components: {
       ResourceAnswerAttachmentsList,
+      VueMarkdown,
     },
     props: {
       groupId: {
@@ -75,5 +86,18 @@
         default: null,
       },
     },
+    methods: {
+      updateSyntax () {
+        this.$nextTick(() => {
+          Prism.highlightAll();
+        });
+      },
+    },
   };
 </script>
+
+<style lang="scss">
+  .markdown-output {
+    @import "../../styles/markdown";
+  }
+</style>
