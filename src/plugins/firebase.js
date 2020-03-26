@@ -73,6 +73,10 @@ export default {
             database,
             userUid: user.uid,
           });
+          store.dispatch('bindNotifications', {
+            database,
+            userUid: user.uid,
+          });
         } catch (error) {
           this.$sendError('login/update-user', {
             error: {
@@ -86,6 +90,7 @@ export default {
         store.dispatch('unbindTeachedGroups');
         store.dispatch('unbindStudiedGroups');
         store.dispatch('unbindUserData');
+        store.dispatch('unbindNotifications');
       }
     });
     Vue.prototype.$database = database;

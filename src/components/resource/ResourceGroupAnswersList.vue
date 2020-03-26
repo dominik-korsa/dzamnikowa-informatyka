@@ -20,7 +20,7 @@
   >
     <v-list-group
       v-for="item in studentItems"
-      :key="item.studentId"
+      :key="item.userId"
       color="secondary"
     >
       <template
@@ -196,12 +196,10 @@
           groupStudents = [];
         }
 
-        const orderedStudentItems = _.orderBy(
+        return _.orderBy(
           studentItems,
           [(e) => _.findIndex(groupStudents, (studentId) => studentId === e.userId)],
         );
-
-        return orderedStudentItems;
       },
     },
   };

@@ -14,12 +14,133 @@
 
     <v-spacer />
 
-    <v-menu :close-on-content-click="false">
+    <v-menu
+      v-model="notificationsMenuOpen"
+      offset-y
+      max-height="512"
+    >
+      <template v-slot:activator="{ on: menu }">
+        <v-tooltip
+          bottom
+        >
+          <template v-slot:activator="{ on: tooltip }">
+            <v-btn
+              icon
+              v-on="{ ...tooltip, ...menu }"
+            >
+              <v-badge
+                color="secondary"
+                :content="unreadNotificationsCount"
+                overlap
+                :value="unreadNotificationsCount > 0"
+              >
+                <v-icon>
+                  mdi-bell
+                </v-icon>
+              </v-badge>
+            </v-btn>
+          </template>
+          <span>Powiadomienia</span>
+        </v-tooltip>
+      </template>
+      <v-card>
+        <v-card-title>
+          Powiadomienia
+        </v-card-title>
+        <div
+          v-if="!notificationsList"
+          class="d-flex justify-center pa-8"
+        >
+          <v-progress-circular
+            indeterminate
+            color="primary"
+            :size="64"
+          />
+        </div>
+        <div
+          v-for="date in notificationsList"
+          v-else
+          :key="date.key"
+        >
+          <v-subheader v-text="date.dateString" />
+          <v-list
+            subheader
+            three-line
+          >
+            <v-list-item
+              v-for="notification in date.notifications"
+              :key="notification.id"
+              :to="notification.to"
+            >
+              <v-list-item-icon>
+                <v-badge
+                  color="secondary"
+                  dot
+                  :value="!notification.read"
+                >
+                  <v-icon v-if="notification.type === 'new-grade' || notification.type === 'edit-grade'">
+                    mdi-counter
+                  </v-icon>
+                  <v-icon v-if="notification.type === 'new-answer'">
+                    mdi-check
+                  </v-icon>
+                  <v-icon v-if="notification.type === 'new-resource' && notification.resourceType === 'material'">
+                    mdi-file-document-box
+                  </v-icon>
+                  <v-icon v-if="notification.type === 'new-resource' && notification.resourceType === 'exercise'">
+                    mdi-book
+                  </v-icon>
+                </v-badge>
+              </v-list-item-icon>
+
+              <v-list-item-content>
+                <v-list-item-subtitle
+                  class="overline"
+                  v-text="notification.groupName"
+                />
+
+                <v-list-item-title v-if="notification.type === 'new-grade'">
+                  Oceniono <b v-text="notification.resourceName" />
+                </v-list-item-title>
+                <v-list-item-title v-if="notification.type === 'edit-grade'">
+                  Zmieniono ocenę <b v-text="notification.resourceName" />
+                </v-list-item-title>
+                <v-list-item-title v-if="notification.type === 'new-answer'">
+                  Nowe rozwiązanie do sprawdzenia
+                </v-list-item-title>
+                <v-list-item-title v-if="notification.type === 'new-resource' && notification.resourceType === 'material'">
+                  Dodano nowy materiał
+                </v-list-item-title>
+                <v-list-item-title v-if="notification.type === 'new-resource' && notification.resourceType === 'exercise'">
+                  Dodano nowe zadanie
+                </v-list-item-title>
+
+                <v-list-item-subtitle v-if="notification.type === 'new-grade' || notification.type === 'edit-grade'">
+                  Liczba punktów za rozwiązanie: <b v-text="notification.points" />
+                </v-list-item-subtitle>
+                <v-list-item-subtitle v-if="notification.type === 'new-answer'">
+                  <b v-text="notification.userName || 'Nieznany użytkownik'" /> w <b v-text="notification.resourceName" />
+                </v-list-item-subtitle>
+                <v-list-item-subtitle
+                  v-if="notification.type === 'new-resource'"
+                  v-text="notification.resourceName"
+                />
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </div>
+      </v-card>
+    </v-menu>
+
+    <v-menu
+      :close-on-content-click="false"
+    >
       <template v-slot:activator="{ on: menu }">
         <v-tooltip bottom>
           <template v-slot:activator="{ on: tooltip }">
             <v-btn
               icon
+              class="ml-4"
               v-on="{ ...tooltip, ...menu }"
             >
               <v-avatar
@@ -149,7 +270,11 @@
   import ChangeDisplayNameDialog from '@/components/ChangeDisplayNameDialog.vue';
   import FacebookUnlinkDialog from '@/components/FacebookUnlinkDialog.vue';
   import privacyPolicyConfig from '@/privacy-policy-config';
+  import * as _ from 'lodash';
+  import moment from 'moment';
   import LongPress from 'vue-directive-long-press';
+
+  moment.locale('pl');
 
   export default {
     components: {
@@ -166,6 +291,7 @@
       facebookLoading: false,
       privacyPolicyConfig,
       teacherModeLongPress: false,
+      notificationsMenuOpen: false,
     }),
     computed: {
       addedProviders () {
@@ -186,6 +312,117 @@
             teacherModeEnabled: value,
           });
         },
+      },
+      groups: {
+        get () {
+          if (!this.$store.state.teachedGroups || !this.$store.state.studiedGroups) return null;
+          return _.unionBy(this.$store.state.teachedGroups, this.$store.state.studiedGroups, 'id');
+        },
+      },
+      resources () {
+        return _.flatMap(
+          _.flatMap(this.groups, (group) => (group.topics || [])).filter((topic) => typeof topic !== 'string'),
+          (topic) => topic.resources || [],
+        );
+      },
+      unreadNotificationsCount () {
+        if (!this.$store.state.notifications) return 0;
+        return this.$store.state.notifications.filter((notification) => !notification.read).length;
+      },
+      notificationsList () {
+        if (!this.$store.state.notifications || !this.groups) return null;
+
+        const notificationsList = this.$store.state.notifications.map((notification) => {
+          const groupA = this.groups.find((e) => e.id === notification.groupId);
+          if (!groupA) return null;
+
+          if (notification.type === 'new-grade' || notification.type === 'edit-grade') {
+            const group = this.groups.find((e) => e.id === notification.groupId);
+            if (!group) return null;
+            const resource = _.flatMap((group.topics || []), (topic) => (typeof topic !== 'string' ? (topic.resources || []) : []))
+              .find((e) => e.id === notification.resourceId);
+            if (!resource) return null;
+            return {
+              id: notification.id,
+              groupName: group.name,
+              resourceName: resource.name,
+              points: notification.points,
+              date: notification.date,
+              type: notification.type,
+              read: notification.read,
+              to: `/grupy/${notification.groupId}/zasoby/${notification.resourceId}/twoje-rozwiazania/${notification.answerId}`,
+            };
+          } if (notification.type === 'new-answer') {
+            const group = this.groups.find((e) => e.id === notification.groupId);
+            if (!group) return null;
+            const resource = _.flatMap((group.topics || []), (topic) => (typeof topic !== 'string' ? (topic.resources || []) : []))
+              .find((e) => e.id === notification.resourceId);
+            if (!resource) return null;
+            let user = null;
+            if (this.$store.state.userDataCollection) {
+              user = this.$store.state.userDataCollection.find((e) => e.id === notification.answerUserId) || null;
+            }
+            return {
+              id: notification.id,
+              groupName: group.name,
+              resourceName: resource.name,
+              userName: user ? user.displayName : null,
+              date: notification.date,
+              type: 'new-answer',
+              read: notification.read,
+              to: `/grupy/${notification.groupId}/zasoby/${notification.resourceId}/ocenianie/${notification.answerId}`,
+            };
+          } if (notification.type === 'new-resource') {
+            const group = this.groups.find((e) => e.id === notification.groupId);
+            if (!group) return null;
+            const resource = _.flatMap((group.topics || []), (topic) => (typeof topic !== 'string' ? (topic.resources || []) : []))
+              .find((e) => e.id === notification.resourceId);
+            if (!resource) return null;
+            return {
+              id: notification.id,
+              groupName: group.name,
+              resourceName: resource.name,
+              resourceType: resource.type,
+              date: notification.date,
+              type: 'new-resource',
+              read: notification.read,
+              to: `/grupy/${notification.groupId}/zasoby/${notification.resourceId}/`,
+            };
+          }
+          console.error(`Unknown notification type: ${notification.type}`);
+          return null;
+        }).filter((item) => item !== null);
+        return _.toPairs(_.groupBy(
+          _.orderBy(notificationsList, [(item) => item.date.toMillis()], ['desc']),
+          (item) => moment(item.date.toDate()).format('YYYY-MM-DD'),
+        )).map(([date, notifications]) => ({
+          key: date,
+          dateString: moment(date).calendar(null, {
+            sameDay: '[Dzisiaj]',
+            lastDay: '[Wczoraj]',
+            lastWeek: '[Ostatni] dddd',
+            sameElse: 'dddd, LL',
+          }),
+          notifications,
+        }));
+      },
+    },
+    watch: {
+      async notificationsMenuOpen (value, oldValue) {
+        if (value === false && oldValue === true) {
+          const notificationsReference = this.$database.collection('notifications')
+            .where('userId', '==', this.$store.state.user.uid);
+          const notificationsDocs = (await notificationsReference.get()).docs;
+          const batch = this.$database.batch();
+
+          notificationsDocs.forEach((doc) => {
+            batch.update(doc.ref, {
+              read: true,
+            });
+          });
+
+          await batch.commit();
+        }
       },
     },
     methods: {

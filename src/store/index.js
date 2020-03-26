@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { vuexfireMutations, firestoreAction, firebaseAction } from 'vuexfire';
+import { vuexfireMutations, firestoreAction } from 'vuexfire';
 
 Vue.use(Vuex);
 
@@ -11,6 +11,7 @@ const stateObject = {
   teachedGroups: null,
   studiedGroups: null,
   userDataCollection: null,
+  notifications: null,
 };
 
 const store = new Vuex.Store({
@@ -64,8 +65,22 @@ const store = new Vuex.Store({
             .where('students', 'array-contains', userUid),
         ),
     ),
-    unbindStudiedGroups: firebaseAction(
-      (context) => context.unbindFirebaseRef('studiedGroups'),
+    unbindStudiedGroups: firestoreAction(
+      (context) => context.unbindFirestoreRef('studiedGroups'),
+    ),
+    bindNotifications: firestoreAction(
+      (context, { database, userUid }) => context.bindFirestoreRef(
+        'notifications',
+        database
+          .collection('notifications')
+          .where('userId', '==', userUid),
+        {
+          wait: true,
+        },
+      ),
+    ),
+    unbindNotifications: firestoreAction(
+      (context) => context.unbindFirestoreRef('notifications'),
     ),
   },
   modules: {
