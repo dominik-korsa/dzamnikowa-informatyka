@@ -48,6 +48,32 @@
           Powiadomienia
         </v-card-title>
         <div
+          v-if="showNotificationsRequest"
+          class="pa-4 secondary white--text"
+        >
+          <div class="title">
+            Włącz powiadomienia push
+          </div>
+          <div class="mt-2 body-1">
+            Natychmiast otrzymuj powiadomienia na swoim urządzeniu, nawet po zamknięciu przeglądarki.
+          </div>
+          <div class="d-flex mt-4 align-center">
+            <v-spacer />
+            <div
+              v-if="notificationsDenied"
+              class="mr-4 body-2 secondary--text text--lighten-4"
+            >
+              Zablokowałeś dostęp do powiadomień
+            </div>
+            <v-btn
+              :disabled="notificationsDenied"
+              @click="enableNotifications"
+            >
+              Włącz
+            </v-btn>
+          </div>
+        </div>
+        <div
           v-if="!notificationsList"
           class="d-flex justify-center pa-8"
         >
@@ -270,6 +296,9 @@
   import ChangeDisplayNameDialog from '@/components/ChangeDisplayNameDialog.vue';
   import FacebookUnlinkDialog from '@/components/FacebookUnlinkDialog.vue';
   import privacyPolicyConfig from '@/privacy-policy-config';
+  import firebase from 'firebase/app';
+  import 'firebase/messaging';
+  import 'firebase/firestore';
   import * as _ from 'lodash';
   import moment from 'moment';
   import LongPress from 'vue-directive-long-press';
@@ -292,6 +321,9 @@
       privacyPolicyConfig,
       teacherModeLongPress: false,
       notificationsMenuOpen: false,
+      showNotificationsRequest: false,
+      notificationsDenied: false,
+      firebaseNotificationTokenUsubscribe: null,
     }),
     computed: {
       addedProviders () {
@@ -422,8 +454,21 @@
           });
 
           await batch.commit();
+        } else {
+          this.updateShowNotificationsRequest();
         }
       },
+    },
+    created () {
+      this.updateShowNotificationsRequest();
+      this.firebaseNotificationTokenUsubscribe = firebase.messaging().onTokenRefresh((token) => {
+        this.sendNotificationsTokenToServer(token);
+        this.updateShowNotificationsRequest();
+      });
+    },
+    destroyed () {
+      this.firebaseNotificationTokenUsubscribe();
+      this.firebaseNotificationTokenUsubscribe = null;
     },
     methods: {
       async linkGoogle () {
@@ -480,6 +525,32 @@
           this.teacherModeEnabled = false;
           this.$toast('Wyłączono tryb nauczyciela');
         }
+      },
+      async enableNotifications () {
+        try {
+          const token = await firebase.messaging().getToken();
+          this.sendNotificationsTokenToServer(token);
+        } catch (error) {
+          console.error(error);
+          this.$toast.error('Podczas włączania powiadomień wystąpił błąd');
+        }
+      },
+      async updateShowNotificationsRequest () {
+        const { permission } = Notification;
+        this.showNotificationsRequest = permission === 'default';
+        if (permission === 'granted') {
+          this.showNotificationsRequest = false;
+          this.sendNotificationsTokenToServer(await firebase.messaging().getToken());
+        } else {
+          this.showNotificationsRequest = true;
+        }
+        this.notificationsDenied = permission === 'denied';
+      },
+      async sendNotificationsTokenToServer (token) {
+        if (!token) throw new Error('Token can\'t be empty');
+        await this.$database.collection('user-data').doc(this.$store.state.user.uid).update({
+          firebaseMessagingTokens: firebase.firestore.FieldValue.arrayUnion(token),
+        });
       },
     },
   };

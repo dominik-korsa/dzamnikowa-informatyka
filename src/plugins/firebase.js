@@ -5,6 +5,7 @@ import Firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/storage';
 import 'firebase/auth';
+import 'firebase/messaging';
 
 const config = {
   apiKey: 'AIzaSyBc_Se8BkU2fsyzvhmSZU1gA8Yk1Rb6Id8',
@@ -99,6 +100,10 @@ export default {
       location,
       data,
       date: Firebase.firestore.FieldValue.serverTimestamp,
+    });
+    firebase.messaging().onMessage((message) => {
+      console.log(message);
+      Vue.prototype.$toast('Nowe powiadomienie');
     });
   },
 };
